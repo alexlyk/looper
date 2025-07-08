@@ -27,54 +27,7 @@ def get_layout():
     lid = hkl & 0xffff
     return format(lid, '04x')
 
-def get_monitor_info():
-    """Получает информацию о всех мониторах"""
-    try:
-        from win32api import GetSystemMetrics
-        from win32con import SM_XVIRTUALSCREEN, SM_YVIRTUALSCREEN, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN
-        
-        # Получаем границы виртуального экрана (все мониторы)
-        x = GetSystemMetrics(SM_XVIRTUALSCREEN)
-        y = GetSystemMetrics(SM_YVIRTUALSCREEN)
-        width = GetSystemMetrics(SM_CXVIRTUALSCREEN)
-        height = GetSystemMetrics(SM_CYVIRTUALSCREEN)
-        
-        return (x, y, width, height)
-    except ImportError:
-        # Если win32api недоступен, используем только основной монитор
-        return None
-
-def get_monitor_from_cursor(cursor_x, cursor_y):
-    """Определяет монитор, на котором находится курсор"""
-    try:
-        import win32api
-        import win32gui
-        
-        # Получаем список всех мониторов
-        monitors = []
-        
-        def monitor_enum_proc(hmon, hdc, rect, data):
-            monitors.append(rect)
-            return True
-        
-        win32api.EnumDisplayMonitors(None, None, monitor_enum_proc, None)
-        
-        # Находим монитор, содержащий курсор
-        for i, (left, top, right, bottom) in enumerate(monitors):
-            if left <= cursor_x < right and top <= cursor_y < bottom:
-                return (left, top, right - left, bottom - top), i
-        
-        # Если не найден, возвращаем первый монитор
-        if monitors:
-            left, top, right, bottom = monitors[0]
-            return (left, top, right - left, bottom - top), 0
-            
-    except ImportError:
-        pass
-    
-    return None, 0
-
-def take_screenshot(action_dir, screen_counter, cursor_x=None, cursor_y=None):
+def take_screenshot(action_dir, screen_counter):
     """Создает скриншот и возвращает имя файла"""
     if not PIL_AVAILABLE:
         return None
@@ -83,46 +36,13 @@ def take_screenshot(action_dir, screen_counter, cursor_x=None, cursor_y=None):
     screenshot_path = action_dir / screenshot_name
     
     try:
-        # Получаем позицию курсора, если не передана
-        if cursor_x is None or cursor_y is None:
-            cursor_x, cursor_y = mc.get_cursor_coordinates()
-        
-        # Пытаемся определить монитор с курсором
-        monitor_info, monitor_index = get_monitor_from_cursor(cursor_x, cursor_y)
-        
-        if monitor_info:
-            # Делаем скриншот конкретного монитора
-            x, y, width, height = monitor_info
-            screenshot = ImageGrab.grab(bbox=(x, y, x + width, y + height))
-            print(f"Скриншот монитора {monitor_index + 1} ({width}x{height})")
-        else:
-            # Получаем информацию о виртуальном экране (все мониторы)
-            virtual_screen = get_monitor_info()
-            
-            if virtual_screen:
-                # Делаем скриншот всех мониторов
-                x, y, width, height = virtual_screen
-                screenshot = ImageGrab.grab(bbox=(x, y, x + width, y + height))
-                print(f"Скриншот всех мониторов ({width}x{height})")
-            else:
-                # Fallback: скриншот по умолчанию
-                screenshot = ImageGrab.grab()
-                print("Скриншот основного монитора")
-        
+        # Делаем скриншот всего экрана (всех мониторов)
+        screenshot = ImageGrab.grab()
         screenshot.save(screenshot_path)
         return screenshot_name
-        
     except Exception as e:
         print(f"Ошибка при создании скриншота: {e}")
-        try:
-            # Fallback: простой скриншот всего экрана
-            screenshot = ImageGrab.grab()
-            screenshot.save(screenshot_path)
-            print("Использован fallback скриншот")
-            return screenshot_name
-        except Exception as e2:
-            print(f"Ошибка fallback скриншота: {e2}")
-            return None
+        return None
 
 # Глобальные переменные для записи
 actions = []
@@ -150,7 +70,7 @@ def on_click(x, y, button, pressed):
         # Для активного действия (нажатие мыши) создаем скриншот
         if pressed:  # только при нажатии (down), не при отпускании
             screen_counter += 1
-            screenshot_name = take_screenshot(action_directory, screen_counter, x, y)
+            screenshot_name = take_screenshot(action_directory, screen_counter)
             if screenshot_name:
                 toAdd['screen'] = screenshot_name
         
@@ -173,12 +93,11 @@ def on_press(key):
     # record Enter explicitly
     if key == keyboard.Key.enter:
         screen_counter += 1
-        cursor_x, cursor_y = mc.get_cursor_coordinates()
-        screenshot_name = take_screenshot(action_directory, screen_counter, cursor_x, cursor_y)
+        screenshot_name = take_screenshot(action_directory, screen_counter)
         
         toAdd = {
             'source': 'keyboard',
-            'key': 'enter',
+            'key': '\n',
             'timestamp': time.time() - start_time,
             'layout': get_layout()
         }
@@ -193,12 +112,11 @@ def on_press(key):
     # record space explicitly
     if key == keyboard.Key.space:
         screen_counter += 1
-        cursor_x, cursor_y = mc.get_cursor_coordinates()
-        screenshot_name = take_screenshot(action_directory, screen_counter, cursor_x, cursor_y)
+        screenshot_name = take_screenshot(action_directory, screen_counter)
         
         toAdd = {
             'source': 'keyboard',
-            'key': 'space',
+            'key': ' ',
             'timestamp': time.time() - start_time,
             'layout': get_layout()
         }
@@ -250,14 +168,9 @@ def record_user_actions(log_file_path):
     
     print("Запись действий начата. Нажмите ESC для завершения записи.")
     print("Активные действия (клики мыши, enter, space) будут сопровождаться скриншотами.")
-    print("Поддержка нескольких мониторов: скриншоты будут делаться для монитора с курсором.")
     
-    # Проверим доступность библиотек для работы с мониторами
-    try:
-        import win32api
-        print("Библиотека win32api доступна - полная поддержка мониторов.")
-    except ImportError:
-        print("Библиотека win32api недоступна - будут использоваться базовые скриншоты.")
+    if not PIL_AVAILABLE:
+        print("Внимание: Скриншоты отключены - PIL (Pillow) не установлен.")
     
     try:
         # Запуск слушателей

@@ -1,11 +1,13 @@
 import json
 import sys
+import os
 from typing import List, Dict, Any, Optional
 
 class BaseActionDecomposer:
-    def __init__(self, max_click_delay: float = 0.3):
+    def __init__(self, max_click_delay: float = 0.5):
         self.max_click_delay = max_click_delay
         self.base_actions = []
+        self.action_id_counter = 1
     
     def load_actions(self, filename: str) -> List[Dict]:
         """Load actions from JSON file"""
@@ -62,6 +64,7 @@ class BaseActionDecomposer:
                 # Check if within max delay
                 if delay <= self.max_click_delay:
                     return {
+                        'id': self.action_id_counter,
                         'name': f'click {button}',
                         'type': 'mouse_click',
                         'button': button,
@@ -89,7 +92,7 @@ class BaseActionDecomposer:
             not action.get('key', '').isprintable()):
             return None
         
-        # Collect consecutive keyboard character inputs
+        # Collect consecutive keyboard character inputs (including space)
         typing_sequence = ""
         consumed_indices = []
         start_timestamp = action.get('timestamp')
@@ -131,6 +134,7 @@ class BaseActionDecomposer:
         
         if (action.get('source') == 'keyboard' and action.get('key') == '\n'):
             return {
+                'id': self.action_id_counter,
                 'name': 'enter',
                 'type': 'keyboard_enter',
                 'timestamp': action.get('timestamp'),
@@ -147,8 +151,11 @@ class BaseActionDecomposer:
             
         action = actions[start_index]
         
+        # Space is now handled within typing sequences, so this method is kept for compatibility
+        # but will not be used in the main decomposition logic
         if (action.get('source') == 'keyboard' and action.get('key') == ' '):
             return {
+                'id': self.action_id_counter,
                 'name': 'space',
                 'type': 'keyboard_space',
                 'timestamp': action.get('timestamp'),
@@ -158,12 +165,28 @@ class BaseActionDecomposer:
         
         return None
     
+    def create_wait_action(self, time_seconds: float) -> Dict:
+        """Create a wait action with timer event"""
+        wait_action = {
+            'id': self.action_id_counter,
+            'name': 'wait',
+            'event': {
+                'name': 'timer',
+                'time': time_seconds
+            }
+        }
+        self.action_id_counter += 1
+        return wait_action
+
     def decompose_actions(self, actions: List[Dict]):
         """Decompose actions into base actions"""
         self.base_actions = []
+        self.action_id_counter = 1
         consumed_indices = set()
         
         i = 0
+        last_action_timestamp = 0
+        
         while i < len(actions):
             if i in consumed_indices:
                 i += 1
@@ -175,38 +198,80 @@ class BaseActionDecomposer:
             # Try mouse click
             base_action = self.find_mouse_clicks(actions, i)
             if base_action:
+                # Add wait action if there's a delay from previous action
+                if last_action_timestamp > 0:
+                    delay = base_action['start_timestamp'] - last_action_timestamp
+                    if delay > 0.1:  # Only add wait if delay is significant
+                        wait_action = self.create_wait_action(delay)
+                        self.base_actions.append(wait_action)
+                
+                base_action['id'] = self.action_id_counter
+                self.action_id_counter += 1
+                
                 for idx in base_action['consumed_indices']:
                     consumed_indices.add(idx)
                 self.base_actions.append(base_action)
+                last_action_timestamp = base_action['end_timestamp']
                 i += 1
                 continue
-            
+
             # Try space
             base_action = self.find_space_action(actions, i)
             if base_action:
+                # Add wait action if there's a delay from previous action
+                if last_action_timestamp > 0:
+                    delay = base_action['timestamp'] - last_action_timestamp
+                    if delay > 0.1:  # Only add wait if delay is significant
+                        wait_action = self.create_wait_action(delay)
+                        self.base_actions.append(wait_action)
+                
+                base_action['id'] = self.action_id_counter
+                self.action_id_counter += 1
+                
                 consumed_indices.add(i)
                 self.base_actions.append(base_action)
+                last_action_timestamp = base_action['timestamp']
                 i += 1
                 continue
             
-            # Try typing sequence
+            # Try typing sequence (space is now included in typing)
             base_action = self.find_typing_sequence(actions, i)
             if base_action:
+                # Add wait action if there's a delay from previous action
+                if last_action_timestamp > 0:
+                    delay = base_action['start_timestamp'] - last_action_timestamp
+                    if delay > 0.1:  # Only add wait if delay is significant
+                        wait_action = self.create_wait_action(delay)
+                        self.base_actions.append(wait_action)
+                
+                base_action['id'] = self.action_id_counter
+                self.action_id_counter += 1
+                
                 for idx in base_action['consumed_indices']:
                     consumed_indices.add(idx)
                 self.base_actions.append(base_action)
+                last_action_timestamp = base_action['end_timestamp']
                 i = max(base_action['consumed_indices']) + 1
                 continue
             
             # Try enter
             base_action = self.find_enter_action(actions, i)
             if base_action:
+                # Add wait action if there's a delay from previous action
+                if last_action_timestamp > 0:
+                    delay = base_action['timestamp'] - last_action_timestamp
+                    if delay > 0.1:  # Only add wait if delay is significant
+                        wait_action = self.create_wait_action(delay)
+                        self.base_actions.append(wait_action)
+                
+                base_action['id'] = self.action_id_counter
+                self.action_id_counter += 1
+                
                 consumed_indices.add(i)
                 self.base_actions.append(base_action)
+                last_action_timestamp = base_action['timestamp']
                 i += 1
                 continue
-            
-           
             
             # If no base action found, skip this action
             print(f"Warning: Could not decompose action at index {i}: {actions[i]}")
@@ -227,12 +292,25 @@ class BaseActionDecomposer:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python bactor.py <input_actions.json> [output_base_actions.json]")
-        print("Example: python bactor.py actions.json base_actions.json")
+        print("Usage: python decomposer.py <action_name>")
+        print("Example: python decomposer.py open_notepad")
         return
     
-    input_file = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else "base_actions.json"
+    action_name = sys.argv[1]
+    
+    # Construct file paths according to concept.md
+    action_dir = os.path.join(".", action_name)
+    input_file = os.path.join(action_dir, "log.json")
+    output_file = os.path.join(action_dir, "actions_base.json")
+    
+    # Check if action directory and log file exist
+    if not os.path.exists(action_dir):
+        print(f"Error: Action directory '{action_dir}' not found")
+        return
+    
+    if not os.path.exists(input_file):
+        print(f"Error: Log file '{input_file}' not found")
+        return
     
     decomposer = BaseActionDecomposer()
     
@@ -251,6 +329,44 @@ def main():
     
     # Save base actions
     decomposer.save_base_actions(output_file)
+
+def decompose_action(action_name: str) -> bool:
+    """
+    Decompose action for use from looper.py
+    Returns True if decomposition was successful, False otherwise
+    """
+    action_dir = os.path.join(".", action_name)
+    input_file = os.path.join(action_dir, "log.json")
+    output_file = os.path.join(action_dir, "actions_base.json")
+    
+    # Check if action directory and log file exist
+    if not os.path.exists(action_dir):
+        print(f"Error: Action directory '{action_dir}' not found")
+        return False
+    
+    if not os.path.exists(input_file):
+        print(f"Error: Log file '{input_file}' not found")
+        return False
+    
+    decomposer = BaseActionDecomposer()
+    
+    # Load actions
+    actions = decomposer.load_actions(input_file)
+    if not actions:
+        return False
+    
+    print(f"Loaded {len(actions)} actions from {input_file}")
+    
+    # Decompose actions
+    decomposer.decompose_actions(actions)
+    
+    # Print summary
+    decomposer.print_summary()
+    
+    # Save base actions
+    decomposer.save_base_actions(output_file)
+    
+    return True
 
 if __name__ == "__main__":
     main()

@@ -48,11 +48,15 @@ def decompose_action(action_name):
         print(f"Ошибка: файл лога '{log_file}' не найден")
         sys.exit(1)
     
-    # TODO: Импорт и запуск модуля декомпозиции
+    # Импорт и запуск модуля декомпозиции
     try:
-        from decomposer import decompose_actions
-        decompose_actions(str(log_file), str(actions_file))
-        print(f"Результат декомпозиции сохранен в '{actions_file}'")
+        from decomposer import decompose_action as decompose_func
+        success = decompose_func(action_name)
+        if success:
+            print(f"Результат декомпозиции сохранен в '{actions_file}'")
+        else:
+            print("Ошибка при декомпозиции")
+            sys.exit(1)
     except ImportError:
         print("Ошибка: модуль decomposer.py не найден")
         sys.exit(1)
@@ -71,15 +75,15 @@ def play_action(action_name, actions_file=None):
     else:
         actions_file = Path(actions_file)
     
-    if not actions_file.exists():
-        print(f"Ошибка: файл действий '{actions_file}' не найден")
-        sys.exit(1)
-    
-    # TODO: Импорт и запуск модуля воспроизведения
+    # Импорт и запуск модуля воспроизведения
     try:
         from play import play_actions
-        play_actions(str(actions_file))
-        print("Воспроизведение завершено")
+        success = play_actions(str(actions_file))
+        if success:
+            print("Воспроизведение завершено")
+        else:
+            print("Ошибка при воспроизведении")
+            sys.exit(1)
     except ImportError:
         print("Ошибка: модуль play.py не найден")
         sys.exit(1)

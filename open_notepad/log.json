@@ -3,85 +3,194 @@
         "source": "mouse",
         "button": "left",
         "dir": "down",
-        "x": 600,
-        "y": 584,
-        "timestamp": 12.549747705459595,
+        "x": 564,
+        "y": 838,
+        "timestamp": 1.945925235748291,
         "screen": "1.png"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "up",
-        "x": 600,
-        "y": 584,
-        "timestamp": 12.695268154144287
+        "x": 564,
+        "y": 838,
+        "timestamp": 2.0804247856140137
+    },
+    {
+        "source": "keyboard",
+        "key": "n",
+        "timestamp": 2.9401891231536865,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "o",
+        "timestamp": 3.1493096351623535,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "t",
+        "timestamp": 3.3869214057922363,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "e",
+        "timestamp": 3.587425947189331,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "p",
+        "timestamp": 4.026219367980957,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "a",
+        "timestamp": 4.2589826583862305,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "d",
+        "timestamp": 4.500061511993408,
+        "layout": "0409"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "down",
-        "x": 934,
-        "y": 1881,
-        "timestamp": 22.197760105133057,
+        "x": 613,
+        "y": 212,
+        "timestamp": 7.3462207317352295,
         "screen": "2.png"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "up",
-        "x": 934,
-        "y": 1881,
-        "timestamp": 22.29648494720459
+        "x": 613,
+        "y": 212,
+        "timestamp": 7.526150703430176
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "down",
-        "x": 748,
-        "y": 2139,
-        "timestamp": 25.245602130889893,
+        "x": 30,
+        "y": 38,
+        "timestamp": 10.30842638015747,
         "screen": "3.png"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "up",
-        "x": 748,
-        "y": 2139,
-        "timestamp": 25.353095054626465
+        "x": 30,
+        "y": 38,
+        "timestamp": 10.588906288146973
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "down",
-        "x": 769,
-        "y": 1566,
-        "timestamp": 26.70163917541504,
+        "x": 44,
+        "y": 58,
+        "timestamp": 11.20123839378357,
         "screen": "4.png"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "up",
-        "x": 769,
-        "y": 1566,
-        "timestamp": 26.803080797195435
+        "x": 45,
+        "y": 58,
+        "timestamp": 11.460277318954468
+    },
+    {
+        "source": "keyboard",
+        "key": "h",
+        "timestamp": 13.179742813110352,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "e",
+        "timestamp": 14.018396139144897,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "l",
+        "timestamp": 14.507793664932251,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "l",
+        "timestamp": 14.65161681175232,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "o",
+        "timestamp": 14.846396446228027,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": " ",
+        "timestamp": 16.301004886627197,
+        "layout": "0409",
+        "screen": "5.png"
+    },
+    {
+        "source": "keyboard",
+        "key": "w",
+        "timestamp": 16.829400777816772,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "o",
+        "timestamp": 17.34089732170105,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "r",
+        "timestamp": 17.932249307632446,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "l",
+        "timestamp": 18.015980005264282,
+        "layout": "0409"
+    },
+    {
+        "source": "keyboard",
+        "key": "d",
+        "timestamp": 18.922566652297974,
+        "layout": "0409"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "down",
-        "x": 985,
-        "y": 14,
-        "timestamp": 30.981725454330444,
-        "screen": "5.png"
+        "x": 781,
+        "y": 20,
+        "timestamp": 25.121551275253296,
+        "screen": "6.png"
     },
     {
         "source": "mouse",
         "button": "left",
         "dir": "up",
-        "x": 985,
-        "y": 13,
-        "timestamp": 31.07769274711609
+        "x": 781,
+        "y": 20,
+        "timestamp": 25.40203833580017
     }
 ]
