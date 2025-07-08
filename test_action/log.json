@@ -1,0 +1,87 @@
+[
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "down",
+        "x": 792,
+        "y": 1853,
+        "timestamp": 5.069051504135132,
+        "screen": "1.png"
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "up",
+        "x": 792,
+        "y": 1853,
+        "timestamp": 5.216881990432739
+    },
+    {
+        "source": "mouse",
+        "button": "right",
+        "dir": "down",
+        "x": 768,
+        "y": 1851,
+        "timestamp": 6.860728025436401,
+        "screen": "2.png"
+    },
+    {
+        "source": "mouse",
+        "button": "right",
+        "dir": "up",
+        "x": 768,
+        "y": 1851,
+        "timestamp": 6.988747835159302
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "down",
+        "x": 786,
+        "y": 1944,
+        "timestamp": 10.412774562835693,
+        "screen": "3.png"
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "up",
+        "x": 786,
+        "y": 1944,
+        "timestamp": 10.541282176971436
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "down",
+        "x": 789,
+        "y": 2125,
+        "timestamp": 11.93295669555664,
+        "screen": "4.png"
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "up",
+        "x": 789,
+        "y": 2125,
+        "timestamp": 12.0451500415802
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "down",
+        "x": 548,
+        "y": 1983,
+        "timestamp": 13.773736715316772,
+        "screen": "5.png"
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "up",
+        "x": 548,
+        "y": 1983,
+        "timestamp": 13.89999771118164
+    }
+]

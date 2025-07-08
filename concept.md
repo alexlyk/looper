@@ -8,6 +8,17 @@
 
 <div class="math-section">
 
+
+- [Описание](#описание)
+  - [Краткая справка по CLI](#краткая-справка-по-cli)
+  - [Запись](#запись)
+  - [Декомпозиция](#декомпозиция)
+  - [Воспроизведение](#воспроизведение)
+  - [Создание сценариев](#создание-сценариев)
+    - [Фиксированная задержка.](#фиксированная-задержка)
+    - [Изменить текст ввода.](#изменить-текст-ввода)
+    - [Параметр клика мышки.](#параметр-клика-мышки)
+
 # Описание
 Программа может работать в следующих режимах:
 - запись
@@ -15,27 +26,31 @@
 - воспроизведение
 - создание сценариев
 
+
+
+
+
 ## Краткая справка по CLI
 
 ```bash
 # Общий формат
-python lyopster.py [режим] [действие] [параметры]
+python looper.py [режим] [действие] [параметры]
 
 # Основные режимы:
-python lyopster.py --record|-r <action_name>              # Запись действий
-python lyopster.py --decompose|-d <action_name>           # Декомпозиция на базовые действия  
-python lyopster.py --play|-p <action_name> [параметры]    # Воспроизведение
-python lyopster.py --scenario|-sc <action_name> [параметры] # Создание сценариев
+python looper.py --record|-r <action_name>              # Запись действий
+python looper.py --decompose|-d <action_name>           # Декомпозиция на базовые действия  
+python looper.py --play|-p <action_name> [параметры]    # Воспроизведение
+python looper.py --scenario|-sc <action_name> [параметры] # Создание сценариев
 
 # Помощь
-python lyopster.py --help|-h                              # Показать справку
-python lyopster.py --version|-v                          # Показать версию
+python looper.py --help|-h                              # Показать справку
+python looper.py --version|-v                          # Показать версию
 
 # Примеры использования:
-python lyopster.py -r open_notepad
-python lyopster.py -d open_notepad  
-python lyopster.py -p open_notepad -f custom_actions.json
-python lyopster.py -sc open_notepad -o my_scenario --delay 1.5
+python looper.py -r open_notepad
+python looper.py -d open_notepad  
+python looper.py -p open_notepad -f custom_actions.json
+python looper.py -sc open_notepad -o my_scenario --delay 1.5
 ```
 
 ## Запись
@@ -43,9 +58,9 @@ python lyopster.py -sc open_notepad -o my_scenario --delay 1.5
 Пользователь вызывает программу в режиме записи и указывает в качестве параметра - имя действия. Например действие "открыть notepad": 
 
 ```bash
-python lyopster.py --record open_notepad
+python looper.py --record open_notepad
 # или короткая форма:
-python lyopster.py -r open_notepad
+python looper.py -r open_notepad
 ```
 
 Программа записыват все действия пользователя, которые он делает с мышью и клавиатурой до нажатия Esс. 
@@ -117,9 +132,9 @@ open_notepad_log.json
 Вызывается командой: 
 
 ```bash
-python lyopster.py --decompose open_notepad
+python looper.py --decompose open_notepad
 # или короткая форма:
-python lyopster.py -d open_notepad
+python looper.py -d open_notepad
 ```
 
 Программа раскладывает все действия пользователя из файла с логами 
@@ -259,9 +274,9 @@ python lyopster.py -d open_notepad
 Вызывается командой
 
 ```bash
-python lyopster.py --play open_notepad
+python looper.py --play open_notepad
 # или короткая форма:
-python lyopster.py -p open_notepad
+python looper.py -p open_notepad
 ```
 
 Дополнительные параметры:
@@ -269,7 +284,7 @@ python lyopster.py -p open_notepad
 
 Пример:
 ```bash
-python lyopster.py -p open_notepad -f custom_actions.json
+python looper.py -p open_notepad -f custom_actions.json
 ```
 
 ## Создание сценариев
@@ -277,9 +292,9 @@ python lyopster.py -p open_notepad -f custom_actions.json
 Вызывается командой: 
 
 ```bash
-python lyopster.py --scenario open_notepad --output scenario_name
+python looper.py --scenario open_notepad --output scenario_name
 # или короткая форма:
-python lyopster.py -sc open_notepad -o scenario_name
+python looper.py -sc open_notepad -o scenario_name
 ```
 
 Результат пишется в файл `./open_notepad/scenario_name.json`.
@@ -295,7 +310,7 @@ python lyopster.py -sc open_notepad -o scenario_name
 Поставить фиксированную задержку после клика мышкой, enter, space. Для этого нужно написать:
 
 ```bash
-python lyopster.py -sc open_notepad -o scenario_name --delay 2.5
+python looper.py -sc open_notepad -o scenario_name --delay 2.5
 ```
 
 где `2.5` - количество секунд для задержки.
@@ -304,7 +319,7 @@ python lyopster.py -sc open_notepad -o scenario_name --delay 2.5
 typing_parameters.csv с указанием всех значений параметров в ходе воспроизведения:
 
 ```bash
-python lyopster.py -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
+python looper.py -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
 ```
 
 Формат файла typing_parameters.csv. Например, в списке actions_base.json всего имеются два действия типа typing : {"login", "pass"}. Тогда файл typing_parameters.csv имеет следующий вид:
@@ -317,7 +332,7 @@ python lyopster.py -sc open_notepad -o scenario_name --typing-params typing_para
 Программа для каждой строки файла typing_parameters.csv воспроизводит последовательность базовых действий с соответствующим набором параметров. Будем называть одно такое выполнение (для одной строки) сценарием. Между сценариями программа бездействует S секунд, где S указывается во время запуска:
 
 ```bash
-python lyopster.py -sc open_notepad -o scenario_name --sleep S
+python looper.py -sc open_notepad -o scenario_name --sleep S
 ```
 
 По умолчанию S=3. Если typing_parameters.csv не задан, то берутся исходные параметры из записи actions_base.json.
@@ -331,7 +346,7 @@ python lyopster.py -sc open_notepad -o scenario_name --sleep S
 Файл с настройками событий указывается так:
 
 ```bash
-python lyopster.py -sc open_notepad -o scenario_name --click-params click_parameters.json
+python looper.py -sc open_notepad -o scenario_name --click-params click_parameters.json
 ```
 
 Формат click_parameters.json

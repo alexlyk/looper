@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&Ocy;&pcy;&icy;&scy;&acy;&ncy;&icy;&iecy;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <style>
+.math-section {
+    font-family: 'Palatino', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.6;
+}
+</style>
+<div class="math-section">
+<h1 id="описание">Описание</h1>
+<p>Программа может работать в следующих режимах:</p>
+<ul>
+<li>запись</li>
+<li>декомпозиция</li>
+<li>воспроизведение</li>
+<li>создание сценариев</li>
+</ul>
+<h2 id="краткая-справка-по-cli">Краткая справка по CLI</h2>
+<pre><code class="language-bash"><span class="hljs-comment"># Общий формат</span>
+python lyopster.py [режим] [действие] [параметры]
+
+<span class="hljs-comment"># Основные режимы:</span>
+python lyopster.py --record|-r &lt;action_name&gt;              <span class="hljs-comment"># Запись действий</span>
+python lyopster.py --decompose|-d &lt;action_name&gt;           <span class="hljs-comment"># Декомпозиция на базовые действия  </span>
+python lyopster.py --play|-p &lt;action_name&gt; [параметры]    <span class="hljs-comment"># Воспроизведение</span>
+python lyopster.py --scenario|-sc &lt;action_name&gt; [параметры] <span class="hljs-comment"># Создание сценариев</span>
+
+<span class="hljs-comment"># Помощь</span>
+python lyopster.py --<span class="hljs-built_in">help</span>|-h                              <span class="hljs-comment"># Показать справку</span>
+python lyopster.py --version|-v                          <span class="hljs-comment"># Показать версию</span>
+
+<span class="hljs-comment"># Примеры использования:</span>
+python lyopster.py -r open_notepad
+python lyopster.py -d open_notepad  
+python lyopster.py -p open_notepad -f custom_actions.json
+python lyopster.py -sc open_notepad -o my_scenario --delay 1.5
+</code></pre>
+<h2 id="запись">Запись</h2>
+<p>Пользователь вызывает программу в режиме записи и указывает в качестве параметра - имя действия. Например действие &quot;открыть notepad&quot;:</p>
+<pre><code class="language-bash">python lyopster.py --record open_notepad
+<span class="hljs-comment"># или короткая форма:</span>
+python lyopster.py -r open_notepad
+</code></pre>
+<p>Программа записыват все действия пользователя, которые он делает с мышью и клавиатурой до нажатия Esс.</p>
+<ul>
+<li>движения мышью: поднятие (up), опускание (down), левая/правая.</li>
+<li>ввод с клавиатуры: какая клавиша была нажата и какая при этом была раскладка. Записываются только печатные символы, space, enter.</li>
+</ul>
+<p>Действия записываются в лог-файл ./open_notepad/log.json.</p>
+<p>В момент совершения действия:</p>
+<ul>
+<li>если действие было активным (нажатие мышью или ввод с клавиатуры enter или space), то делается скрин экрана, который сохраняется в отдельный файл с уникальным именем и в лог действия пишется имя файла.</li>
+<li>сохранятеся время прошедшее с момента запуска программы к моменту совершения действия и пишется в лог</li>
+<li>раскладка клавиатуры</li>
+</ul>
+<p>Например:</p>
+<pre><code class="language-json">open_notepad_log.json
+<span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;dir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;down&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;x&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">775</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;y&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1058</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;timestamp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2.430940866470337</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;screen&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1.png&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;dir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;up&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;x&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">775</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;y&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1058</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;timestamp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2.5047407150268555</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyboard&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;key&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;n&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;timestamp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5.583201885223389</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;layout&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0409&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyboard&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;key&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;o&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;timestamp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5.711046934127808</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;layout&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0409&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;dir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;down&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;x&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">989</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;y&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">13</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;timestamp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">80.71313333511353</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;screen&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2.png&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;dir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;up&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;x&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">989</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;y&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">13</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;timestamp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">80.82457709312439</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">]</span>
+</code></pre>
+<h2 id="декомпозиция">Декомпозиция</h2>
+<p>Вызывается командой:</p>
+<pre><code class="language-bash">python lyopster.py --decompose open_notepad
+<span class="hljs-comment"># или короткая форма:</span>
+python lyopster.py -d open_notepad
+</code></pre>
+<p>Программа раскладывает все действия пользователя из файла с логами
+./open_notepad/log.json
+на базовые действия. Список базовых действий:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+        name <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;click left&quot;</span><span class="hljs-punctuation">,</span>
+        begin <span class="hljs-punctuation">:</span>
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;dir&quot;</span>   <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;down&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        end <span class="hljs-punctuation">:</span> 
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;dir&quot;</span>   <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;up&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        max_delay <span class="hljs-punctuation">:</span> <span class="hljs-number">0.3</span> 
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        name <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;click right&quot;</span><span class="hljs-punctuation">,</span>
+        begin <span class="hljs-punctuation">:</span> 
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;right&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;dir&quot;</span>   <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;down&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        end <span class="hljs-punctuation">:</span> 
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;right&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;dir&quot;</span>   <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;up&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        max_delay <span class="hljs-punctuation">:</span> <span class="hljs-number">0.3</span> 
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        name <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;typing&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-comment">// объединяет все действия от певрого ввода символа, до первого появления не вводного символа.</span>
+        text <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;строка ввода пользователя&quot;</span>  
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-comment">// нажатие enter</span>
+        name <span class="hljs-punctuation">:</span> &#x27;enter&#x27;
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-comment">// нажатие space, не внутри &#x27;typing&#x27; (!)</span>
+        name <span class="hljs-punctuation">:</span> &#x27;space&#x27;
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        name<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;wait&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-comment">// событие после наступления которого происходит следующее действие. например, sleep(1) .</span>
+        event<span class="hljs-punctuation">:</span> 
+            <span class="hljs-punctuation">{</span>
+                name<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;timer&quot;</span>
+                <span class="hljs-comment">// время сколько нужно спать.</span>
+                time<span class="hljs-punctuation">:</span> T
+            <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">]</span>
+</code></pre>
+<p>Разложение на базовые действия сохраняется в файл ./open_notepad/actions_base.json.</p>
+<p>Пример ./open_notepad/actions_base.json :</p>
+<pre><code class="language-json"><span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;click left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse_click&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;x&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">775</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;y&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1058</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;consumed_indices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+            <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">1</span>
+        <span class="hljs-punctuation">]</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">2</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;wait&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">{</span>
+                <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;timer&quot;</span><span class="hljs-punctuation">,</span>
+                <span class="hljs-attr">&quot;time&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5.583201885223389</span>
+            <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;typing&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyboard_typing&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;notepad&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;consumed_indices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+            <span class="hljs-number">2</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">3</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">4</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">5</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">6</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">7</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">8</span>
+        <span class="hljs-punctuation">]</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;wait&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">{</span>
+                <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;timer&quot;</span><span class="hljs-punctuation">,</span>
+                <span class="hljs-attr">&quot;time&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">3.537025451660156</span>
+            <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">5</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;click left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mouse_click&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;x&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">775</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;y&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">538</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;consumed_indices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+            <span class="hljs-number">9</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-number">10</span>
+        <span class="hljs-punctuation">]</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">]</span>
+</code></pre>
+<p>Можно, чтобы LLM давала название/характеристику каждому действию по картинке.</p>
+<h2 id="воспроизведение">Воспроизведение</h2>
+<p>Воспроизводит действия пользователя, точнее базовые действия полученные на этапе декомпозиции.</p>
+<p>Вызывается командой</p>
+<pre><code class="language-bash">python lyopster.py --play open_notepad
+<span class="hljs-comment"># или короткая форма:</span>
+python lyopster.py -p open_notepad
+</code></pre>
+<p>Дополнительные параметры:</p>
+<ul>
+<li><code>--actions-file &lt;filename&gt;</code> или <code>-f &lt;filename&gt;</code> - имя файла с базовыми действиями. По умолчанию используется <code>actions_base.json</code></li>
+</ul>
+<p>Пример:</p>
+<pre><code class="language-bash">python lyopster.py -p open_notepad -f custom_actions.json
+</code></pre>
+<h2 id="создание-сценариев">Создание сценариев</h2>
+<p>Вызывается командой:</p>
+<pre><code class="language-bash">python lyopster.py --scenario open_notepad --output scenario_name
+<span class="hljs-comment"># или короткая форма:</span>
+python lyopster.py -sc open_notepad -o scenario_name
+</code></pre>
+<p>Результат пишется в файл <code>./open_notepad/scenario_name.json</code>.</p>
+<p>Дополнительные параметры для создания сценариев:</p>
+<p>Программа создаёт последовательность (базовых) действий, которые будут в дальнейшем
+исполняться. Входными данными для неё является последовательность базовых действий полученных на этапе декомпозиции. Данный скрипт меняет базовые действия по определённому правилу.</p>
+<p>Опишем, что можно сделать с базовыми действиями.</p>
+<h3 id="фиксированная-задержка">Фиксированная задержка.</h3>
+<p>Поставить фиксированную задержку после клика мышкой, enter, space. Для этого нужно написать:</p>
+<pre><code class="language-bash">python lyopster.py -sc open_notepad -o scenario_name --delay 2.5
+</code></pre>
+<p>где <code>2.5</code> - количество секунд для задержки.</p>
+<h3 id="изменить-текст-ввода">Изменить текст ввода.</h3>
+<p>Базовое действие typing имеет параметр &quot;text&quot;. На вход программе можно дать файл
+typing_parameters.csv с указанием всех значений параметров в ходе воспроизведения:</p>
+<pre><code class="language-bash">python lyopster.py -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
+</code></pre>
+<p>Формат файла typing_parameters.csv. Например, в списке actions_base.json всего имеются два действия типа typing : {&quot;login&quot;, &quot;pass&quot;}. Тогда файл typing_parameters.csv имеет следующий вид:</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>login</th>
+<th>pass</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>alex</td>
+<td>123</td>
+</tr>
+<tr>
+<td>2</td>
+<td>sasha</td>
+<td>456</td>
+</tr>
+</tbody>
+</table>
+<p>Программа для каждой строки файла typing_parameters.csv воспроизводит последовательность базовых действий с соответствующим набором параметров. Будем называть одно такое выполнение (для одной строки) сценарием. Между сценариями программа бездействует S секунд, где S указывается во время запуска:</p>
+<pre><code class="language-bash">python lyopster.py -sc open_notepad -o scenario_name --<span class="hljs-built_in">sleep</span> S
+</code></pre>
+<p>По умолчанию S=3. Если typing_parameters.csv не задан, то берутся исходные параметры из записи actions_base.json.</p>
+<h3 id="параметр-клика-мышки">Параметр клика мышки.</h3>
+<p>Базовое действие &quot;wait&quot; имеет параметр event, то есть событие наступление которого следуют
+ждать прежде чем выполнять следующее действие. По умолчанию все event имеют тип timer и просто ждут фиксированное количество секунд.</p>
+<p>Рассмотрим другой тип события &quot;picOnScreen&quot; - ждёт пока на экране появится определённая картинка. Это событие может быть только перед действием &quot;клик мышки&quot;. Опишем какую картинку ждёт событие. В момент, когда наступает следующее событие, клик мышки, мы сохраняем скрин экрана и вырезаем из него референсный прямоугольник 10 на 10 с центром в точке клика. Событие для действия считается произошедшим, если на экране появился данный прямоугольник и, тогда в качестве координаты клика используется центра найденного прямоугольника. Параметр референсного прямоугольнка можно изменять.
+Файл с настройками событий указывается так:</p>
+<pre><code class="language-bash">python lyopster.py -sc open_notepad -o scenario_name --click-params click_parameters.json
+</code></pre>
+<p>Формат click_parameters.json</p>
+<pre><code class="language-json"><span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;fn&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pic1.png&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;fn&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pic2.png&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">]</span>
+</code></pre>
+<p>В поле fn записывается имя файла с референсным прямоугольником</p>
+</div>
+            
+            
+        </body>
+        </html>
