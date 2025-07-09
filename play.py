@@ -14,6 +14,17 @@ import win32con
 import win32gui
 from pynput import keyboard
 
+# Глобальная переменная для отслеживания прерывания
+stop_playback = False
+
+def on_key_press(key):
+    """Обработчик нажатий клавиш для прерывания воспроизведения"""
+    global stop_playback
+    if key == keyboard.Key.esc:
+        print("\nПолучен сигнал прерывания (ESC). Останавливаем воспроизведение...")
+        stop_playback = True
+        return False  # Останавливаем слушатель
+
 
 def execute_mouse_click(action):
     """Выполняет клик мышью"""
@@ -65,13 +76,23 @@ def execute_space():
 
 def execute_wait(action):
     """Выполняет ожидание"""
+    global stop_playback
+    
     event = action.get('event', {})
     event_name = event.get('name', 'timer')
     
     if event_name == 'timer':
         wait_time = event.get('time', 1.0)
         print(f"Ожидание {wait_time} секунд")
-        time.sleep(wait_time)
+        
+        # Разбиваем длительное ожидание на короткие интервалы для возможности прерывания
+        elapsed = 0
+        interval = 0.1  # Проверяем каждые 100ms
+        while elapsed < wait_time and not stop_playback:
+            sleep_time = min(interval, wait_time - elapsed)
+            time.sleep(sleep_time)
+            elapsed += sleep_time
+            
     elif event_name == 'picOnScreen':
         pic_file = event.get('file', '')
         print(f"Ожидание появления изображения: {pic_file}")
@@ -82,6 +103,8 @@ def execute_wait(action):
 
 def wait_for_image_on_screen(image_file, timeout=30, threshold=0.8):
     """Ждет появления изображения на экране"""
+    global stop_playback
+    
     if not Path(image_file).exists():
         print(f"Файл изображения не найден: {image_file}")
         return False
@@ -93,7 +116,7 @@ def wait_for_image_on_screen(image_file, timeout=30, threshold=0.8):
     
     start_time = time.time()
     
-    while time.time() - start_time < timeout:
+    while time.time() - start_time < timeout and not stop_playback:
         # Получаем скриншот экрана
         screenshot = take_screenshot()
         if screenshot is None:
@@ -109,6 +132,10 @@ def wait_for_image_on_screen(image_file, timeout=30, threshold=0.8):
             return True
         
         time.sleep(0.5)
+    
+    if stop_playback:
+        print("Ожидание изображения прервано")
+        return False
     
     print(f"Изображение не найдено в течение {timeout} секунд")
     return False
@@ -175,6 +202,11 @@ def create_actions_base_if_needed(actions_file):
 
 def play_actions(actions_file):
     """Основная функция воспроизведения действий"""
+    global stop_playback
+    
+    # Сбрасываем флаг прерывания
+    stop_playback = False
+    
     # Пробуем создать actions_base.json если его нет
     if not Path(actions_file).exists():
         if not create_actions_base_if_needed(actions_file):
@@ -196,9 +228,20 @@ def play_actions(actions_file):
     
     print(f"Загружено {len(actions)} действий из {actions_file}")
     print("Начинаем воспроизведение через 3 секунды...")
+    print("Нажмите ESC для прерывания воспроизведения")
+    
+    # Запускаем слушатель клавиатуры в отдельном потоке
+    listener = keyboard.Listener(on_press=on_key_press)
+    listener.start()
+    
     time.sleep(3)
     
     for i, action in enumerate(actions):
+        # Проверяем флаг прерывания перед каждым действием
+        if stop_playback:
+            print("Воспроизведение прервано пользователем")
+            break
+            
         action_name = action.get('name', 'unknown')
         print(f"[{i+1}/{len(actions)}] Выполняем действие: {action_name}")
         
@@ -220,7 +263,14 @@ def play_actions(actions_file):
             print(f"Ошибка при выполнении действия {action_name}: {e}")
             continue
     
-    print("Воспроизведение завершено")
+    # Останавливаем слушатель клавиатуры
+    listener.stop()
+    
+    if stop_playback:
+        print("Воспроизведение было прервано")
+    else:
+        print("Воспроизведение завершено")
+    
     return True
 
 
@@ -231,6 +281,13 @@ if __name__ == "__main__":
         print("Использование: python play.py <путь_к_файлу_действий>")
         sys.exit(1)
     
+    # Запускаем слушатель клавиатуры в отдельном потоке
+    listener = keyboard.Listener(on_press=on_key_press)
+    listener.start()
+    
     success = play_actions(filename)
     if not success:
         sys.exit(1)
+    
+    # Ожидаем завершения слушателя перед выходом
+    listener.join()

@@ -6,6 +6,7 @@ import json
 import sys
 import string
 import os
+import shutil
 from pathlib import Path
 
 # Попытка импорта PIL для скриншотов
@@ -43,6 +44,31 @@ def take_screenshot(action_dir, screen_counter):
     except Exception as e:
         print(f"Ошибка при создании скриншота: {e}")
         return None
+
+def clear_action_directory(directory_path):
+    """
+    Очищает директорию с действием перед началом записи.
+    Удаляет все файлы и поддиректории внутри указанной папки.
+    
+    Args:
+        directory_path (Path): Путь к директории для очистки
+    """
+    if directory_path.exists():
+        print(f"Очистка существующей директории: {directory_path}")
+        
+        # Удаляем все содержимое директории
+        for item in directory_path.iterdir():
+            try:
+                if item.is_file():
+                    item.unlink()  # Удаляем файл
+                    print(f"Удален файл: {item.name}")
+                elif item.is_dir():
+                    shutil.rmtree(item)  # Удаляем директорию рекурсивно
+                    print(f"Удалена папка: {item.name}")
+            except Exception as e:
+                print(f"Не удалось удалить {item.name}: {e}")
+        
+        print("Директория очищена.")
 
 # Глобальные переменные для записи
 actions = []
@@ -164,6 +190,11 @@ def record_user_actions(log_file_path):
     
     # Определяем директорию для скриншотов (та же директория, где log.json)
     action_directory = Path(log_file_path).parent
+    
+    # Очищаем директорию если она уже существует
+    clear_action_directory(action_directory)
+    
+    # Создаем директорию заново
     action_directory.mkdir(exist_ok=True)
     
     print("Запись действий начата. Нажмите ESC для завершения записи.")
