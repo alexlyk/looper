@@ -153,7 +153,10 @@ $RECYCLE.BIN/
 *.backup
 
 # Project specific files
-# Записанные действия (кроме примеров)
+# Новая папка с действиями
+actions/
+
+# Старые действия в корне (кроме примеров)
 */log.json
 */actions_base.json
 */*.png
@@ -167,7 +170,3 @@ test_action/
 
 # Backup files
 *.json.backup
-
-actions/
-
-*.html

@@ -13,6 +13,7 @@ import win32api
 import win32con
 import win32gui
 from pynput import keyboard
+from config import get_config
 
 # Глобальная переменная для отслеживания прерывания
 stop_playback = False
@@ -155,20 +156,26 @@ def take_screenshot():
         return None
 
 
-def create_actions_base_if_needed(actions_file):
+def create_actions_base_if_needed(action_name, actions_file=None):
     """Создает actions_base.json из log.json если его нет"""
-    actions_path = Path(actions_file)
+    cfg = get_config()
+    
+    # Если actions_file не указан, используем стандартный путь
+    if actions_file is None:
+        actions_file = cfg.get_actions_base_file_path(action_name)
+    else:
+        actions_file = Path(actions_file)
     
     # Если файл уже существует, ничего не делаем
-    if actions_path.exists():
+    if actions_file.exists():
         return True
     
     # Проверяем, что это файл actions_base.json
-    if actions_path.name != 'actions_base.json':
+    if actions_file.name != 'actions_base.json':
         return False
     
-    # Ищем log.json в той же директории
-    log_file = actions_path.parent / 'log.json'
+    # Получаем путь к log.json через конфигурацию
+    log_file = cfg.get_log_file_path(action_name)
     
     if not log_file.exists():
         print(f"Не найден файл лога: {log_file}")
@@ -182,7 +189,6 @@ def create_actions_base_if_needed(actions_file):
     try:
         # Импортируем и вызываем функцию декомпозиции
         from decomposer import decompose_action
-        action_name = actions_path.parent.name
         
         success = decompose_action(action_name)
         if success:
@@ -200,16 +206,28 @@ def create_actions_base_if_needed(actions_file):
         return False
 
 
-def play_actions(actions_file):
+def play_actions(action_name, actions_file=None):
     """Основная функция воспроизведения действий"""
     global stop_playback
     
     # Сбрасываем флаг прерывания
     stop_playback = False
     
+    # Получаем конфигурацию
+    cfg = get_config()
+    
+    # Если actions_file не указан, используем стандартный путь
+    if actions_file is None:
+        actions_file = cfg.get_actions_base_file_path(action_name)
+    else:
+        actions_file = Path(actions_file)
+    
+    print(f"Воспроизведение действия '{action_name}'")
+    print(f"Файл действий: {actions_file}")
+    
     # Пробуем создать actions_base.json если его нет
-    if not Path(actions_file).exists():
-        if not create_actions_base_if_needed(actions_file):
+    if not actions_file.exists():
+        if not create_actions_base_if_needed(action_name, actions_file):
             print(f"Файл не найден: {actions_file}")
             return False
     
@@ -276,18 +294,12 @@ def play_actions(actions_file):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        filename = sys.argv[1]
+        action_name = sys.argv[1]
     else:
-        print("Использование: python play.py <путь_к_файлу_действий>")
+        print("Использование: python play.py <имя_действия>")
+        print("Например: python play.py open_notepad")
         sys.exit(1)
     
-    # Запускаем слушатель клавиатуры в отдельном потоке
-    listener = keyboard.Listener(on_press=on_key_press)
-    listener.start()
-    
-    success = play_actions(filename)
+    success = play_actions(action_name)
     if not success:
         sys.exit(1)
-    
-    # Ожидаем завершения слушателя перед выходом
-    listener.join()

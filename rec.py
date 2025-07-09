@@ -8,6 +8,7 @@ import string
 import os
 import shutil
 from pathlib import Path
+from config import get_config
 
 # Попытка импорта PIL для скриншотов
 try:
@@ -172,30 +173,38 @@ def on_press(key):
         print(toAdd)
 
 
-def record_user_actions(log_file_path):
+def record_user_actions(action_name):
     """
     Основная функция для записи действий пользователя.
     Вызывается из looper.py
     
     Args:
-        log_file_path (str): Путь к файлу лога (включая имя файла)
+        action_name (str): Имя действия (например, 'open_notepad')
     """
     global actions, filename, start_time, action_directory, screen_counter
     
+    # Получаем конфигурацию
+    cfg = get_config()
+    
+    # Определяем пути через конфигурацию
+    action_directory = cfg.get_action_path(action_name)
+    log_file_path = cfg.get_log_file_path(action_name)
+    
     # Инициализация
     actions = []
-    filename = log_file_path
+    filename = str(log_file_path)
     start_time = time.time()
     screen_counter = 0
     
-    # Определяем директорию для скриншотов (та же директория, где log.json)
-    action_directory = Path(log_file_path).parent
+    print(f"Запись действия '{action_name}'")
+    print(f"Директория действий: {action_directory}")
+    print(f"Файл лога: {log_file_path}")
     
     # Очищаем директорию если она уже существует
     clear_action_directory(action_directory)
     
     # Создаем директорию заново
-    action_directory.mkdir(exist_ok=True)
+    action_directory.mkdir(parents=True, exist_ok=True)
     
     print("Запись действий начата. Нажмите ESC для завершения записи.")
     print("Активные действия (клики мыши, enter, space) будут сопровождаться скриншотами.")
@@ -216,9 +225,9 @@ if __name__ == "__main__":
     # Тестовый запуск для отладки
     print('Включите английскую раскладку для лучшей совместимости!')
     
-    test_filename = 'test_actions.json'
+    test_action_name = 'test_action'
     if len(sys.argv) > 1:
-        test_filename = sys.argv[1]
+        test_action_name = sys.argv[1]
     
-    record_user_actions(test_filename)
+    record_user_actions(test_action_name)
     print('Запись завершена')

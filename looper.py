@@ -8,13 +8,15 @@ import sys
 import os
 import json
 from pathlib import Path
+from config import get_config
 
 __version__ = "1.0.0"
 
 def create_action_directory(action_name):
     """Создает директорию для действия, если она не существует"""
-    action_dir = Path(action_name)
-    action_dir.mkdir(exist_ok=True)
+    cfg = get_config()
+    action_dir = cfg.get_action_path(action_name)
+    action_dir.mkdir(parents=True, exist_ok=True)
     return action_dir
 
 def record_action(action_name):
@@ -22,13 +24,10 @@ def record_action(action_name):
     print(f"Запись действия '{action_name}'...")
     print("Нажмите ESC для завершения записи")
     
-    action_dir = create_action_directory(action_name)
-    log_file = action_dir / "log.json"
-    
-    # TODO: Импорт и запуск модуля записи
+    # Импорт и запуск модуля записи
     try:
         from rec import record_user_actions
-        record_user_actions(str(log_file))
+        record_user_actions(action_name)
     except ImportError:
         print("Ошибка: модуль rec.py не найден")
         sys.exit(1)
@@ -40,9 +39,9 @@ def decompose_action(action_name):
     """Декомпозиция действий на базовые"""
     print(f"Декомпозиция действия '{action_name}'...")
     
-    action_dir = Path(action_name)
-    log_file = action_dir / "log.json"
-    actions_file = action_dir / "actions_base.json"
+    cfg = get_config()
+    log_file = cfg.get_log_file_path(action_name)
+    actions_file = cfg.get_actions_base_file_path(action_name)
     
     if not log_file.exists():
         print(f"Ошибка: файл лога '{log_file}' не найден")
@@ -68,17 +67,10 @@ def play_action(action_name, actions_file=None):
     """Воспроизведение действий"""
     print(f"Воспроизведение действия '{action_name}'...")
     
-    action_dir = Path(action_name)
-    
-    if actions_file is None:
-        actions_file = action_dir / "actions_base.json"
-    else:
-        actions_file = Path(actions_file)
-    
     # Импорт и запуск модуля воспроизведения
     try:
         from play import play_actions
-        success = play_actions(str(actions_file))
+        success = play_actions(action_name, actions_file)
         if success:
             print("Воспроизведение завершено")
         else:
@@ -96,9 +88,9 @@ def create_scenario(action_name, output_name, delay=None, typing_params=None,
     """Создание сценария"""
     print(f"Создание сценария '{output_name}' для действия '{action_name}'...")
     
-    action_dir = Path(action_name)
-    actions_file = action_dir / "actions_base.json"
-    scenario_file = action_dir / f"{output_name}.json"
+    cfg = get_config()
+    actions_file = cfg.get_actions_base_file_path(action_name)
+    scenario_file = cfg.get_scenario_file_path(action_name, output_name)
     
     if not actions_file.exists():
         print(f"Ошибка: файл базовых действий '{actions_file}' не найден")

@@ -2,6 +2,8 @@ import json
 import sys
 import os
 from typing import List, Dict, Any, Optional
+from pathlib import Path
+from config import get_config
 
 class BaseActionDecomposer:
     def __init__(self, max_click_delay: float = 0.5):
@@ -335,23 +337,32 @@ def decompose_action(action_name: str) -> bool:
     Decompose action for use from looper.py
     Returns True if decomposition was successful, False otherwise
     """
-    action_dir = os.path.join(".", action_name)
-    input_file = os.path.join(action_dir, "log.json")
-    output_file = os.path.join(action_dir, "actions_base.json")
+    # Получаем конфигурацию
+    cfg = get_config()
+    
+    # Определяем пути через конфигурацию
+    action_dir = cfg.get_action_path(action_name)
+    input_file = cfg.get_log_file_path(action_name)
+    output_file = cfg.get_actions_base_file_path(action_name)
+    
+    print(f"Декомпозиция действия '{action_name}'")
+    print(f"Директория действий: {action_dir}")
+    print(f"Входной файл: {input_file}")
+    print(f"Выходной файл: {output_file}")
     
     # Check if action directory and log file exist
-    if not os.path.exists(action_dir):
+    if not action_dir.exists():
         print(f"Error: Action directory '{action_dir}' not found")
         return False
     
-    if not os.path.exists(input_file):
+    if not input_file.exists():
         print(f"Error: Log file '{input_file}' not found")
         return False
     
     decomposer = BaseActionDecomposer()
     
     # Load actions
-    actions = decomposer.load_actions(input_file)
+    actions = decomposer.load_actions(str(input_file))
     if not actions:
         return False
     
@@ -364,7 +375,7 @@ def decompose_action(action_name: str) -> bool:
     decomposer.print_summary()
     
     # Save base actions
-    decomposer.save_base_actions(output_file)
+    decomposer.save_base_actions(str(output_file))
     
     return True
 

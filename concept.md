@@ -26,7 +26,8 @@
 - воспроизведение
 - создание сценариев
 
-
+Файл с настройками лежит в файле
+./looper.config
 
 
 
@@ -67,7 +68,9 @@ python looper.py -r open_notepad
 - движения мышью: поднятие (up), опускание (down), левая/правая.
 - ввод с клавиатуры: какая клавиша была нажата и какая при этом была раскладка. Записываются только печатные символы, space, enter.
 
-Действия записываются в лог-файл ./open_notepad/log.json.
+Действия записываются в лог-файл: ACTION_FOLDER/open_notepad/log.json.
+
+ACTION_FOLDER берётся из конфигурационного файла looper.config
 
 В момент совершения действия:
 - если действие было активным (нажатие мышью или ввод с клавиатуры enter или space), то делается скрин экрана, который сохраняется в отдельный файл с уникальным именем и в лог действия пишется имя файла.
@@ -138,7 +141,7 @@ python looper.py -d open_notepad
 ```
 
 Программа раскладывает все действия пользователя из файла с логами 
-./open_notepad/log.json
+ACTION_FOLDER/open_notepad/log.json
 на базовые действия. Список базовых действий:
 
 ```json 
@@ -201,9 +204,9 @@ python looper.py -d open_notepad
 ]
 ```
 
-Разложение на базовые действия сохраняется в файл ./open_notepad/actions_base.json.
+Разложение на базовые действия сохраняется в файл ACTION_FOLDER/open_notepad/actions_base.json.
 
-Пример ./open_notepad/actions_base.json :
+Пример ACTION_FOLDER/open_notepad/actions_base.json :
 ```json 
 [
     {
@@ -297,7 +300,7 @@ python looper.py --scenario open_notepad --output scenario_name
 python looper.py -sc open_notepad -o scenario_name
 ```
 
-Результат пишется в файл `./open_notepad/scenario_name.json`.
+Результат пишется в файл `ACTION_FOLDER/open_notepad/scenario_name.json`.
 
 Дополнительные параметры для создания сценариев:
 
