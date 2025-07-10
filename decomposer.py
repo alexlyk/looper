@@ -292,6 +292,60 @@ class BaseActionDecomposer:
         for action_type, count in action_counts.items():
             print(f"  {action_type}: {count}")
 
+    def create_typing_parameters_base_csv(self, csv_file_path: str):
+        """Создает файл typing_parameters_base.csv на основе базовых действий"""
+        import csv
+        
+        # Собираем все typing действия
+        typing_actions = []
+        for action in self.base_actions:
+            if action.get('name') == 'typing' and action.get('type') == 'keyboard_typing':
+                typing_actions.append(action)
+        
+        if not typing_actions:
+            print("Нет typing действий для создания CSV файла")
+            return
+            
+        # Создаем заголовки CSV: id + названия для каждого typing действия
+        headers = ['id']
+        column_names = []
+        for i, action in enumerate(typing_actions, 1):
+            # Используем исходный текст как название колонки, заменяя пробелы на _
+            original_text = action.get('text', f'typing_{i}')
+            column_name = original_text.replace(' ', '_').replace('+', 'plus').replace('-', 'minus')
+            column_names.append(column_name)
+            headers.append(column_name)
+        
+        # Создаем несколько примеров строк
+        rows_data = []
+        
+        # Первая строка - исходные значения
+        row1 = ['1']
+        for action in typing_actions:
+            row1.append(action.get('text', ''))
+        rows_data.append(row1)
+        
+        try:
+            with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+                # Добавляем комментарий в начало файла
+                csvfile.write('# Этот файл содержит параметры для typing действий\n')
+                csvfile.write('# Каждая строка представляет один сценарий выполнения\n')
+                csvfile.write('# Используется с командой: python looper.py -sc <action_name> -o <scenario_name> --typing-params typing_parameters_base.csv\n')
+                csvfile.write('#\n')
+                
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)
+                for row in rows_data:
+                    writer.writerow(row)
+            
+            print(f"Файл typing_parameters_base.csv создан: {csv_file_path}")
+            print(f"Найдено typing действий: {len(typing_actions)}")
+            for i, action in enumerate(typing_actions, 1):
+                print(f"  {i}. text: '{action.get('text', '')}'")
+                
+        except Exception as e:
+            print(f"Ошибка при создании CSV файла: {e}")
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python decomposer.py <action_name>")
@@ -331,6 +385,10 @@ def main():
     
     # Save base actions
     decomposer.save_base_actions(output_file)
+    
+    # Create typing_parameters_base.csv file
+    typing_csv_file = os.path.join(action_dir, "typing_parameters_base.csv")
+    decomposer.create_typing_parameters_base_csv(typing_csv_file)
 
 def decompose_action(action_name: str) -> bool:
     """
@@ -376,6 +434,10 @@ def decompose_action(action_name: str) -> bool:
     
     # Save base actions
     decomposer.save_base_actions(str(output_file))
+    
+    # Create typing_parameters_base.csv file
+    typing_csv_file = cfg.get_typing_parameters_base_file_path(action_name)
+    decomposer.create_typing_parameters_base_csv(str(typing_csv_file))
     
     return True
 

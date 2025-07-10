@@ -165,12 +165,16 @@ def create_actions_base_if_needed(action_name, actions_file=None):
         actions_file = cfg.get_actions_base_file_path(action_name)
     else:
         actions_file = Path(actions_file)
+        # Если путь не абсолютный, делаем его относительно папки действия
+        if not actions_file.is_absolute():
+            action_dir = cfg.get_action_path(action_name)
+            actions_file = action_dir / actions_file
     
     # Если файл уже существует, ничего не делаем
     if actions_file.exists():
         return True
     
-    # Проверяем, что это файл actions_base.json
+    # Проверяем, что это файл actions_base.json - только для стандартного файла создаем автоматически
     if actions_file.name != 'actions_base.json':
         return False
     
@@ -220,7 +224,11 @@ def play_actions(action_name, actions_file=None):
     if actions_file is None:
         actions_file = cfg.get_actions_base_file_path(action_name)
     else:
-        actions_file = Path(actions_file)
+        actions_file = Path(actions_file+'.json')
+        # Если путь не абсолютный, делаем его относительно папки действия
+        if not actions_file.is_absolute():
+            action_dir = cfg.get_action_path(action_name)
+            actions_file = action_dir / actions_file
     
     print(f"Воспроизведение действия '{action_name}'")
     print(f"Файл действий: {actions_file}")

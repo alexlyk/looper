@@ -88,126 +88,38 @@ def create_scenario(action_name, output_name, delay=None, typing_params=None,
     """Создание сценария"""
     print(f"Создание сценария '{output_name}' для действия '{action_name}'...")
     
-    cfg = get_config()
-    actions_file = cfg.get_actions_base_file_path(action_name)
-    scenario_file = cfg.get_scenario_file_path(action_name, output_name)
-    
-    if not actions_file.exists():
-        print(f"Ошибка: файл базовых действий '{actions_file}' не найден")
-        sys.exit(1)
-    
-    # Загружаем базовые действия
     try:
-        with open(actions_file, 'r', encoding='utf-8') as f:
-            base_actions = json.load(f)
-    except Exception as e:
-        print(f"Ошибка при чтении файла действий: {e}")
+        from scenario_creator import ScenarioCreator
+        creator = ScenarioCreator(action_name)
+        
+        # Создаем комплексный сценарий со всеми возможными модификациями
+        creator.create_complex_scenario(
+            output_name=output_name,
+            delay=delay,
+            typing_params_file=typing_params,
+            click_params_file=click_params,
+            sleep_time=sleep_time
+        )
+        
+        # Показываем информацию о созданном сценарии
+        info = creator.get_scenario_info(output_name)
+        if info and 'error' not in info:
+            print(f"\nИнформация о сценарии:")
+            print(f"  Общее количество действий: {info['total_actions']}")
+            print(f"  Клики мышью: {info['click_actions']}")
+            print(f"  Действия ввода: {info['typing_actions']}")
+            print(f"  Ожидания: {info['wait_actions']}")
+            if info['enter_actions'] > 0:
+                print(f"  Нажатия Enter: {info['enter_actions']}")
+            if info['space_actions'] > 0:
+                print(f"  Нажатия Space: {info['space_actions']}")
+        
+    except ImportError:
+        print("Ошибка: модуль scenario_creator.py не найден")
         sys.exit(1)
-    
-    # Применяем модификации
-    modified_actions = modify_actions(
-        base_actions, delay, typing_params, click_params, sleep_time
-    )
-    
-    # Сохраняем сценарий
-    try:
-        with open(scenario_file, 'w', encoding='utf-8') as f:
-            json.dump(modified_actions, f, ensure_ascii=False, indent=2)
-        print(f"Сценарий сохранен в '{scenario_file}'")
     except Exception as e:
-        print(f"Ошибка при сохранении сценария: {e}")
+        print(f"Ошибка при создании сценария: {e}")
         sys.exit(1)
-
-def modify_actions(base_actions, delay, typing_params, click_params, sleep_time):
-    """Модифицирует базовые действия согласно параметрам сценария"""
-    modified_actions = []
-    
-    # Загружаем параметры typing если указаны
-    typing_data = None
-    if typing_params:
-        try:
-            import csv
-            with open(typing_params, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                typing_data = list(reader)
-        except Exception as e:
-            print(f"Ошибка при чтении файла параметров ввода: {e}")
-            sys.exit(1)
-    
-    # Загружаем параметры клика если указаны
-    click_data = None
-    if click_params:
-        try:
-            with open(click_params, 'r', encoding='utf-8') as f:
-                click_data = json.load(f)
-        except Exception as e:
-            print(f"Ошибка при чтении файла параметров клика: {e}")
-            sys.exit(1)
-    
-    # Если есть typing_data, создаем несколько сценариев
-    scenarios_count = len(typing_data) if typing_data else 1
-    
-    for scenario_idx in range(scenarios_count):
-        scenario_actions = []
-        
-        for action in base_actions:
-            new_action = action.copy()
-            
-            # Модифицируем typing действия
-            if action.get('name') == 'typing' and typing_data:
-                typing_row = typing_data[scenario_idx]
-                # Находим соответствующий параметр для этого typing
-                action_id = action.get('id')
-                for key, value in typing_row.items():
-                    if key != 'id':
-                        new_action['text'] = value
-                        break
-            
-            # Добавляем фиксированную задержку после определенных действий
-            if delay and action.get('name') in ['click left', 'click right', 'enter', 'space']:
-                scenario_actions.append(new_action)
-                # Добавляем wait действие
-                wait_action = {
-                    "name": "wait",
-                    "event": {
-                        "name": "timer",
-                        "time": delay
-                    }
-                }
-                scenario_actions.append(wait_action)
-            else:
-                scenario_actions.append(new_action)
-        
-        # Модифицируем click параметры
-        if click_data:
-            for action in scenario_actions:
-                if action.get('name') in ['click left', 'click right']:
-                    action_id = action.get('id')
-                    for click_param in click_data:
-                        if click_param.get('id') == action_id:
-                            # Изменяем предыдущее wait событие на picOnScreen
-                            prev_action_idx = scenario_actions.index(action) - 1
-                            if (prev_action_idx >= 0 and 
-                                scenario_actions[prev_action_idx].get('name') == 'wait'):
-                                scenario_actions[prev_action_idx]['event'] = {
-                                    "name": "picOnScreen",
-                                    "file": click_param.get('fn')
-                                }
-        
-        modified_actions.extend(scenario_actions)
-        
-        # Добавляем паузу между сценариями (кроме последнего)
-        if scenario_idx < scenarios_count - 1:
-            sleep_action = {
-                "name": "wait",
-                "event": {
-                    "name": "timer", 
-                    "time": sleep_time
-                }
-            }
-            modified_actions.append(sleep_action)
-    
-    return modified_actions
 
 def main():
     """Главная функция CLI"""

@@ -72,6 +72,10 @@ class LooperConfig:
     def get_scenario_file_path(self, action_name, scenario_name):
         """Возвращает путь к файлу сценария"""
         return self.get_action_path(action_name) / f"{scenario_name}.json"
+    
+    def get_typing_parameters_base_file_path(self, action_name):
+        """Возвращает путь к файлу базовых параметров typing для действия"""
+        return self.get_action_path(action_name) / "typing_parameters_base.csv"
 
 
 # Глобальный экземпляр конфигурации
@@ -90,3 +94,4 @@ if __name__ == "__main__":
     print(f"Path for 'open_notepad': {cfg.get_action_path('open_notepad')}")
     print(f"Log file for 'open_notepad': {cfg.get_log_file_path('open_notepad')}")
     print(f"Actions base file for 'open_notepad': {cfg.get_actions_base_file_path('open_notepad')}")
+    print(f"Typing parameters base file for 'open_notepad': {cfg.get_typing_parameters_base_file_path('open_notepad')}")
