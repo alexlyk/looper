@@ -15,6 +15,16 @@ import win32gui
 from pynput import keyboard
 from config import get_config
 
+# Попытка импорта PIL для скриншотов
+try:
+    from PIL import ImageGrab,Image,ImageDraw
+    PIL_AVAILABLE = True
+except ImportError:
+    print("Внимание: PIL (Pillow) не установлен. Скриншоты будут отключены.")
+    print("Для установки выполните: pip install pillow")
+    PIL_AVAILABLE = False
+    
+
 # Глобальная переменная для отслеживания прерывания
 stop_playback = False
 
@@ -146,7 +156,7 @@ def take_screenshot():
     """Делает скриншот экрана"""
     try:
         import pyautogui
-        screenshot = pyautogui.screenshot()
+        screenshot = ImageGrab.grab(all_screens=True)
         return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
     except ImportError:
         print("Для работы с изображениями требуется установить pyautogui: pip install pyautogui")

@@ -151,8 +151,8 @@
 <ul>
 <li><a href="#%D0%BA%D1%80%D0%B0%D1%82%D0%BA%D0%B0%D1%8F-%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D0%BF%D0%BE-cli">Краткая справка по CLI</a></li>
 <li><a href="#%D0%B7%D0%B0%D0%BF%D0%B8%D1%81%D1%8C">Запись</a></li>
-<li><a href="#%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%BE%D0%B7%D0%B8%D1%86%D0%B8%D1%8F">Декомпозиция</a></li>
 <li><a href="#%D0%B2%D0%BE%D1%81%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5">Воспроизведение</a></li>
+<li><a href="#%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%BE%D0%B7%D0%B8%D1%86%D0%B8%D1%8F">Декомпозиция</a></li>
 <li><a href="#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D1%86%D0%B5%D0%BD%D0%B0%D1%80%D0%B8%D0%B5%D0%B2">Создание сценариев</a>
 <ul>
 <li><a href="#%D1%84%D0%B8%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%B0%D1%8F-%D0%B7%D0%B0%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%B0">Фиксированная задержка.</a></li>
@@ -171,14 +171,16 @@
 <li>воспроизведение</li>
 <li>создание сценариев</li>
 </ul>
+<p>Файл с настройками лежит в файле
+./looper.config</p>
 <h2 id="краткая-справка-по-cli">Краткая справка по CLI</h2>
 <pre><code class="language-bash"><span class="hljs-comment"># Общий формат</span>
 python looper.py [режим] [действие] [параметры]
 
 <span class="hljs-comment"># Основные режимы:</span>
 python looper.py --record|-r &lt;action_name&gt;              <span class="hljs-comment"># Запись действий</span>
-python looper.py --decompose|-d &lt;action_name&gt;           <span class="hljs-comment"># Декомпозиция на базовые действия  </span>
 python looper.py --play|-p &lt;action_name&gt; [параметры]    <span class="hljs-comment"># Воспроизведение</span>
+python looper.py --decompose|-d &lt;action_name&gt;           <span class="hljs-comment"># Декомпозиция на базовые действия  </span>
 python looper.py --scenario|-sc &lt;action_name&gt; [параметры] <span class="hljs-comment"># Создание сценариев</span>
 
 <span class="hljs-comment"># Помощь</span>
@@ -202,7 +204,8 @@ python looper.py -r open_notepad
 <li>движения мышью: поднятие (up), опускание (down), левая/правая.</li>
 <li>ввод с клавиатуры: какая клавиша была нажата и какая при этом была раскладка. Записываются только печатные символы, space, enter.</li>
 </ul>
-<p>Действия записываются в лог-файл ./open_notepad/log.json.</p>
+<p>Действия записываются в лог-файл: ACTION_FOLDER/open_notepad/log.json.</p>
+<p>ACTION_FOLDER берётся из конфигурационного файла looper.config</p>
 <p>В момент совершения действия:</p>
 <ul>
 <li>если действие было активным (нажатие мышью или ввод с клавиатуры enter или space), то делается скрин экрана, который сохраняется в отдельный файл с уникальным именем и в лог действия пишется имя файла.</li>
@@ -260,6 +263,20 @@ python looper.py -r open_notepad
     <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span>
 </code></pre>
+<h2 id="воспроизведение">Воспроизведение</h2>
+<p>Воспроизводит действия пользователя, точнее базовые действия полученные на этапе декомпозиции.</p>
+<p>Вызывается командой</p>
+<pre><code class="language-bash">python looper.py --play open_notepad
+<span class="hljs-comment"># или короткая форма:</span>
+python looper.py -p open_notepad
+</code></pre>
+<p>Дополнительные параметры:</p>
+<ul>
+<li><code>--actions-file &lt;filename&gt;</code> или <code>-f &lt;filename&gt;</code> - имя файла с базовыми действиями. По умолчанию используется <code>actions_base.json</code></li>
+</ul>
+<p>Пример:</p>
+<pre><code class="language-bash">python looper.py -p open_notepad -f custom_actions.json
+</code></pre>
 <h2 id="декомпозиция">Декомпозиция</h2>
 <p>Вызывается командой:</p>
 <pre><code class="language-bash">python looper.py --decompose open_notepad
@@ -267,7 +284,7 @@ python looper.py -r open_notepad
 python looper.py -d open_notepad
 </code></pre>
 <p>Программа раскладывает все действия пользователя из файла с логами
-./open_notepad/log.json
+ACTION_FOLDER/open_notepad/log.json
 на базовые действия. Список базовых действий:</p>
 <pre><code class="language-json"><span class="hljs-punctuation">[</span>
     <span class="hljs-punctuation">{</span>
@@ -327,8 +344,8 @@ python looper.py -d open_notepad
     <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span>
 </code></pre>
-<p>Разложение на базовые действия сохраняется в файл ./open_notepad/actions_base.json.</p>
-<p>Пример ./open_notepad/actions_base.json :</p>
+<p>Разложение на базовые действия сохраняется в файл ACTION_FOLDER/open_notepad/actions_base.json.</p>
+<p>Пример ACTION_FOLDER/open_notepad/actions_base.json :</p>
 <pre><code class="language-json"><span class="hljs-punctuation">[</span>
     <span class="hljs-punctuation">{</span>
         <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
@@ -388,27 +405,13 @@ python looper.py -d open_notepad
 <span class="hljs-punctuation">]</span>
 </code></pre>
 <p>Можно, чтобы LLM давала название/характеристику каждому действию по картинке.</p>
-<h2 id="воспроизведение">Воспроизведение</h2>
-<p>Воспроизводит действия пользователя, точнее базовые действия полученные на этапе декомпозиции.</p>
-<p>Вызывается командой</p>
-<pre><code class="language-bash">python looper.py --play open_notepad
-<span class="hljs-comment"># или короткая форма:</span>
-python looper.py -p open_notepad
-</code></pre>
-<p>Дополнительные параметры:</p>
-<ul>
-<li><code>--actions-file &lt;filename&gt;</code> или <code>-f &lt;filename&gt;</code> - имя файла с базовыми действиями. По умолчанию используется <code>actions_base.json</code></li>
-</ul>
-<p>Пример:</p>
-<pre><code class="language-bash">python looper.py -p open_notepad -f custom_actions.json
-</code></pre>
 <h2 id="создание-сценариев">Создание сценариев</h2>
 <p>Вызывается командой:</p>
 <pre><code class="language-bash">python looper.py --scenario open_notepad --output scenario_name
 <span class="hljs-comment"># или короткая форма:</span>
 python looper.py -sc open_notepad -o scenario_name
 </code></pre>
-<p>Результат пишется в файл <code>./open_notepad/scenario_name.json</code>.</p>
+<p>Результат пишется в файл <code>ACTION_FOLDER/open_notepad/scenario_name.json</code>.</p>
 <p>Дополнительные параметры для создания сценариев:</p>
 <p>Программа создаёт последовательность (базовых) действий, которые будут в дальнейшем
 исполняться. Входными данными для неё является последовательность базовых действий полученных на этапе декомпозиции. Данный скрипт меняет базовые действия по определённому правилу.</p>
@@ -417,7 +420,7 @@ python looper.py -sc open_notepad -o scenario_name
 <p>Поставить фиксированную задержку после клика мышкой, enter, space. Для этого нужно написать:</p>
 <pre><code class="language-bash">python looper.py -sc open_notepad -o scenario_name --delay 2.5
 </code></pre>
-<p>где <code>2.5</code> - количество секунд для задержки.</p>
+<p>где <code>2.5</code> - количество секунд для задержки. В созданном сценарии по этой команде все задержки перед клика мышкой, enter, space составляют 2.5 секунды.</p>
 <h3 id="изменить-текст-ввода">Изменить текст ввода.</h3>
 <p>Базовое действие typing имеет параметр &quot;text&quot;. На вход программе можно дать файл
 typing_parameters.csv с указанием всех значений параметров в ходе воспроизведения:</p>

@@ -91,12 +91,13 @@ def create_scenario(action_name, output_name, delay=None, typing_params=None,
     try:
         from scenario_creator import ScenarioCreator
         creator = ScenarioCreator(action_name)
-        
+        cfg = get_config()
+        typing_params_file = cfg.get_get_typing_parameters_file_path(action_name,typing_params)
         # Создаем комплексный сценарий со всеми возможными модификациями
         creator.create_complex_scenario(
             output_name=output_name,
             delay=delay,
-            typing_params_file=typing_params,
+            typing_params_file=typing_params_file,
             click_params_file=click_params,
             sleep_time=sleep_time
         )

@@ -73,9 +73,15 @@ class LooperConfig:
         """Возвращает путь к файлу сценария"""
         return self.get_action_path(action_name) / f"{scenario_name}.json"
     
+    def get_get_typing_parameters_file_path(self, action_name, typing_parameters):
+        """Возвращает путь к файлу параметров typing для действия"""
+        return self.get_action_path(action_name) / f"{typing_parameters}.csv"
+
     def get_typing_parameters_base_file_path(self, action_name):
         """Возвращает путь к файлу базовых параметров typing для действия"""
-        return self.get_action_path(action_name) / "typing_parameters_base.csv"
+        return self.get_get_typing_parameters_file_path(action_name,'typing_parameters_base')
+    
+
 
 
 # Глобальный экземпляр конфигурации

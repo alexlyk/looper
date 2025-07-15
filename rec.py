@@ -12,7 +12,7 @@ from config import get_config
 
 # Попытка импорта PIL для скриншотов
 try:
-    from PIL import ImageGrab
+    from PIL import ImageGrab,Image,ImageDraw
     PIL_AVAILABLE = True
 except ImportError:
     print("Внимание: PIL (Pillow) не установлен. Скриншоты будут отключены.")
@@ -39,8 +39,23 @@ def take_screenshot(action_dir, screen_counter):
     
     try:
         # Делаем скриншот всего экрана (всех мониторов)
-        screenshot = ImageGrab.grab()
+        screenshot = ImageGrab.grab(all_screens=True)
         screenshot.save(screenshot_path)
+        x, y = mc.get_cursor_coordinates()
+        # draw cursor 
+        draw = ImageDraw.Draw(screenshot)
+        cursor_radius = 5  # радиус кружка-курсора
+        draw.ellipse(
+            [
+                (x - cursor_radius, y - cursor_radius),
+                (x + cursor_radius, y + cursor_radius)
+            ],
+            outline="red", width=2, fill="red"
+        )
+        screenshot_name_c = f"{screen_counter}_c.png"
+        screenshot_path_c = action_dir / screenshot_name_c
+        screenshot.save(screenshot_path_c)
+
         return screenshot_name
     except Exception as e:
         print(f"Ошибка при создании скриншота: {e}")

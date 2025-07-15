@@ -68,15 +68,12 @@ class ScenarioCreator:
                 # Модифицируем typing действия
                 if action.get('name') == 'typing' and typing_data:
                     typing_row = typing_data[scenario_idx]
-                    action_id = action.get('id')
+                    action_id = action.get('text')
                     if str(action_id) in typing_row:
                         new_action['text'] = typing_row[str(action_id)]
                     else:
                         # Если нет соответствующего ID, берем первое не-id значение
-                        for key, value in typing_row.items():
-                            if key != 'id':
-                                new_action['text'] = value
-                                break
+                        raise Exception(f"Ошибка обработке typing parameters")
                 
                 # Обрабатываем фиксированную задержку для определенных действий
                 if action.get('name') == 'wait' and delay:
@@ -131,9 +128,23 @@ class ScenarioCreator:
     
     def _load_typing_params(self, typing_params_file):
         """Загружает параметры ввода из CSV файла"""
+        import io
+
         try:
             with open(typing_params_file, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
+                # Фильтруем строки, убирая комментарии и пустые строки
+                filtered_lines = []
+                for line in f:
+                    line = line.strip()
+                    # Пропускаем пустые строки и комментарии (начинающиеся с #)
+                    if line and not line.startswith('#'):
+                        filtered_lines.append(line)
+                
+                # Создаем строковый буфер для csv.DictReader
+                csv_content = '\n'.join(filtered_lines)
+                csv_buffer = io.StringIO(csv_content)
+                
+                reader = csv.DictReader(csv_buffer)
                 return list(reader)
         except Exception as e:
             raise Exception(f"Ошибка при чтении файла параметров ввода: {e}")

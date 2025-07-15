@@ -156,17 +156,10 @@ $RECYCLE.BIN/
 # Новая папка с действиями
 actions/
 
-# Старые действия в корне (кроме примеров)
-*/log.json
-*/actions_base.json
-*/*.png
-test_record/
-test_action/
 
-# Но оставляем примеры
-!calculator/
-!open_notepad/
-!open_yandex/
 
 # Backup files
 *.json.backup
+
+draft.ipynb
+*.png

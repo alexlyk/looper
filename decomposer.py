@@ -295,7 +295,6 @@ class BaseActionDecomposer:
     def create_typing_parameters_base_csv(self, csv_file_path: str):
         """Создает файл typing_parameters_base.csv на основе базовых действий"""
         import csv
-        
         # Собираем все typing действия
         typing_actions = []
         for action in self.base_actions:
