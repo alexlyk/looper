@@ -98,7 +98,6 @@ def create_scenario(action_name, output_name, delay=None, typing_params=None,
             output_name=output_name,
             delay=delay,
             typing_params_file=typing_params_file,
-            click_params_file=click_params,
             sleep_time=sleep_time
         )
         
@@ -179,7 +178,7 @@ def main():
     )
     parser.add_argument(
         '--delay',
-        type=float,
+        #type=float,
         metavar='SECONDS',
         help='Фиксированная задержка после клика, enter, space (в секундах)'
     )

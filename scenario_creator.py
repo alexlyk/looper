@@ -39,7 +39,7 @@ class ScenarioCreator:
     
     
     def create_complex_scenario(self, output_name, delay=None, typing_params_file=None, 
-                               click_params_file=None, sleep_time=3):
+                               sleep_time=3):
         """Создает комплексный сценарий с несколькими типами модификаций"""
         print(f"Создание комплексного сценария '{output_name}'...")
         
@@ -48,10 +48,8 @@ class ScenarioCreator:
         if typing_params_file:
             typing_data = self._load_typing_params(typing_params_file)
         
-        # Загружаем параметры клика если указаны
-        click_data = None
-        if click_params_file:
-            click_data = self._load_click_params(click_params_file)
+        # Проверяем, нужно ли создавать динамические задержки
+        is_dynamic_delay = delay == "dynamic"
         
         # Если есть typing_data, создаем несколько сценариев
         scenarios_count = len(typing_data) if typing_data else 1
@@ -60,7 +58,6 @@ class ScenarioCreator:
         
         for scenario_idx in range(scenarios_count):
             scenario_actions = []
-            i = 0
             
             for action in self.base_actions:
                 new_action = copy.deepcopy(action)
@@ -75,38 +72,38 @@ class ScenarioCreator:
                         # Если нет соответствующего ID, берем первое не-id значение
                         raise Exception(f"Ошибка обработке typing parameters")
                 
-                # Обрабатываем фиксированную задержку для определенных действий
-                if action.get('name') == 'wait' and delay:
-                    # Добавляем новое wait действие с фиксированной задержкой
-                    wait_action = {
-                        "id": self.next_id,
-                        "name": "wait",
-                        "event": {
+                # Обрабатываем задержки
+                if action.get('name') == 'wait':
+                    if delay and delay != "dynamic":
+                        # Фиксированная задержка - заменяем время
+                        new_action['event'] = {
                             "name": "timer",
-                            "time": delay
+                            "time": float(delay)
                         }
-                    }
-                    self.next_id += 1
-                    scenario_actions.append(wait_action)
-                else:
-                    scenario_actions.append(new_action)
+                    elif is_dynamic_delay:
+                        # Динамическая задержка - проверяем, есть ли после этого левый клик
+                        current_idx = self.base_actions.index(action)
+                        # Ищем следующий левый клик после текущего wait
+                        next_click_action = None
+                        next_action = self.base_actions[current_idx + 1]
+                        if next_action.get('name') == 'click left':
+                            next_click_action = next_action
+                            
+                        
+                        if next_click_action:
+                            # Создаем picOnScreen событие
+                            screen_file = next_click_action.get('screen')
+                            if screen_file:
+                                # Создаем имя файла для референсного прямоугольника
+                                pic_name = screen_file.replace('.png', '_rr.png')
+                                new_action['event'] = {
+                                    "name": "picOnScreen",
+                                    "pic": pic_name
+                                }
+                                # Создаем референсный прямоугольник
+                                self._create_reference_rectangle(screen_file, pic_name, next_click_action)
                 
-            
-            # Модифицируем click параметры
-            if click_data:
-                for action in scenario_actions:
-                    if action.get('name') in ['click left', 'click right']:
-                        action_id = action.get('id')
-                        for click_param in click_data:
-                            if click_param.get('id') == action_id:
-                                # Изменяем предыдущее wait событие на picOnScreen
-                                prev_action_idx = scenario_actions.index(action) - 1
-                                if (prev_action_idx >= 0 and 
-                                    scenario_actions[prev_action_idx].get('name') == 'wait'):
-                                    scenario_actions[prev_action_idx]['event'] = {
-                                        "name": "picOnScreen",
-                                        "file": click_param.get('fn')
-                                    }
+                scenario_actions.append(new_action)
             
             modified_actions.extend(scenario_actions)
             
@@ -125,6 +122,10 @@ class ScenarioCreator:
         
         self._save_scenario(modified_actions, output_name)
         return modified_actions
+    
+    def create_scenario_with_delay(self, delay, output_name):
+        """Создает сценарий с фиксированной задержкой (для обратной совместимости)"""
+        return self.create_complex_scenario(output_name, delay=delay)
     
     def _load_typing_params(self, typing_params_file):
         """Загружает параметры ввода из CSV файла"""
@@ -156,6 +157,45 @@ class ScenarioCreator:
                 return json.load(f)
         except Exception as e:
             raise Exception(f"Ошибка при чтении файла параметров клика: {e}")
+    
+    def _create_reference_rectangle(self, screen_file, pic_name, click_action):
+        """Создает референсный прямоугольник 50x50 из скриншота"""
+        try:
+            from PIL import Image
+            import os
+            
+            # Получаем путь к папке с действием
+            action_folder = self.config.get_action_path(self.action_name)
+            screen_path = action_folder / screen_file
+            pic_path = action_folder / pic_name
+            
+            if not screen_path.exists():
+                print(f"Предупреждение: файл скриншота '{screen_path}' не найден")
+                return
+            
+            # Открываем исходное изображение
+            with Image.open(screen_path) as img:
+                # Получаем координаты клика
+                x = click_action.get('x', 0)
+                y = click_action.get('y', 0)
+                
+                # Вычисляем границы прямоугольника 50x50 с центром в точке клика
+                left = max(0, x - 25)
+                top = max(0, y - 25)
+                right = min(img.width, x + 25)
+                bottom = min(img.height, y + 25)
+                
+                # Вырезаем прямоугольник
+                reference_rect = img.crop((left, top, right, bottom))
+                
+                # Сохраняем референсный прямоугольник
+                reference_rect.save(pic_path)
+                print(f"Создан референсный прямоугольник: {pic_path}")
+                
+        except ImportError:
+            print("Предупреждение: PIL (Pillow) не установлен. Референсные прямоугольники не будут созданы.")
+        except Exception as e:
+            print(f"Ошибка при создании референсного прямоугольника: {e}")
     
     def _save_scenario(self, actions, output_name):
         """Сохраняет сценарий в файл"""

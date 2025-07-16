@@ -65,7 +65,7 @@ class BaseActionDecomposer:
                
                 # Check if within max delay
                 if delay <= self.max_click_delay:
-                    return {
+                    base_action = {
                         'id': self.action_id_counter,
                         'name': f'click {button}',
                         'type': 'mouse_click',
@@ -77,6 +77,12 @@ class BaseActionDecomposer:
                         'delay': delay,
                         'consumed_indices': [start_index, i]
                     }
+                    
+                    # Добавляем путь к скрину, если он есть в действии down
+                    if 'screen' in action:
+                        base_action['screen'] = action['screen']
+                    
+                    return base_action
                 break
         
         return None
@@ -135,7 +141,7 @@ class BaseActionDecomposer:
         action = actions[start_index]
         
         if (action.get('source') == 'keyboard' and action.get('key') == '\n'):
-            return {
+            base_action = {
                 'id': self.action_id_counter,
                 'name': 'enter',
                 'type': 'keyboard_enter',
@@ -143,6 +149,12 @@ class BaseActionDecomposer:
                 'layout': action.get('layout'),
                 'consumed_indices': [start_index]
             }
+            
+            # Добавляем путь к скрину, если он есть в действии
+            if 'screen' in action:
+                base_action['screen'] = action['screen']
+            
+            return base_action
         
         return None
     
@@ -156,7 +168,7 @@ class BaseActionDecomposer:
         # Space is now handled within typing sequences, so this method is kept for compatibility
         # but will not be used in the main decomposition logic
         if (action.get('source') == 'keyboard' and action.get('key') == ' '):
-            return {
+            base_action = {
                 'id': self.action_id_counter,
                 'name': 'space',
                 'type': 'keyboard_space',
@@ -164,6 +176,12 @@ class BaseActionDecomposer:
                 'layout': action.get('layout'),
                 'consumed_indices': [start_index]
             }
+            
+            # Добавляем путь к скрину, если он есть в действии
+            if 'screen' in action:
+                base_action['screen'] = action['screen']
+            
+            return base_action
         
         return None
     
