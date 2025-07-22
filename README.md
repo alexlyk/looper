@@ -90,3 +90,11 @@ ACTION_FOLDER = ./actions
 ```ini
 ACTION_FOLDER = D:/MyActions
 ```
+
+## Автор
+
+**Lykov Alexander**
+
+## Лицензия
+
+Этот проект распространяется под лицензией MIT. Подробности смотрите в файле [LICENSE](LICENSE).
