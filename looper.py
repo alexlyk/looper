@@ -130,12 +130,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Примеры использования:
-  python looper.py -r open_notepad
-  python looper.py -d open_notepad  
-  python looper.py -p open_notepad -f custom_actions.json
-  python looper.py -p open_notepad -f custom_actions.json --dynamic
-  python looper.py -p open_notepad --dynamic
-  python looper.py -sc open_notepad -o my_scenario --delay 1.5
+  looper -r open_notepad
+  looper -d open_notepad  
+  looper -p open_notepad -f custom_actions.json
+  looper -p open_notepad -f custom_actions.json --dynamic
+  looper -p open_notepad --dynamic
+  looper -sc open_notepad -o my_scenario --delay 1.5
         """
     )
     

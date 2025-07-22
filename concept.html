@@ -157,7 +157,6 @@
 <ul>
 <li><a href="#%D1%84%D0%B8%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%B0%D1%8F-%D0%B7%D0%B0%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%B0">Фиксированная задержка.</a></li>
 <li><a href="#%D0%B8%D0%B7%D0%BC%D0%B5%D0%BD%D0%B8%D1%82%D1%8C-%D1%82%D0%B5%D0%BA%D1%81%D1%82-%D0%B2%D0%B2%D0%BE%D0%B4%D0%B0">Изменить текст ввода.</a></li>
-<li><a href="#%D0%BF%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80-%D0%BA%D0%BB%D0%B8%D0%BA%D0%B0-%D0%BC%D1%8B%D1%88%D0%BA%D0%B8">Параметр клика мышки.</a></li>
 </ul>
 </li>
 </ul>
@@ -175,29 +174,29 @@
 ./looper.config</p>
 <h2 id="краткая-справка-по-cli">Краткая справка по CLI</h2>
 <pre><code class="language-bash"><span class="hljs-comment"># Общий формат</span>
-python looper.py [режим] [действие] [параметры]
+looper [режим] [действие] [параметры]
 
 <span class="hljs-comment"># Основные режимы:</span>
-python looper.py --record|-r &lt;action_name&gt;              <span class="hljs-comment"># Запись действий</span>
-python looper.py --play|-p &lt;action_name&gt; [параметры]    <span class="hljs-comment"># Воспроизведение</span>
-python looper.py --decompose|-d &lt;action_name&gt;           <span class="hljs-comment"># Декомпозиция на базовые действия  </span>
-python looper.py --scenario|-sc &lt;action_name&gt; [параметры] <span class="hljs-comment"># Создание сценариев</span>
+looper --record|-r &lt;action_name&gt;              <span class="hljs-comment"># Запись действий</span>
+looper --play|-p &lt;action_name&gt; [параметры]    <span class="hljs-comment"># Воспроизведение</span>
+looper --decompose|-d &lt;action_name&gt;           <span class="hljs-comment"># Декомпозиция на базовые действия  </span>
+looper --scenario|-sc &lt;action_name&gt; [параметры] <span class="hljs-comment"># Создание сценариев</span>
 
 <span class="hljs-comment"># Помощь</span>
-python looper.py --<span class="hljs-built_in">help</span>|-h                              <span class="hljs-comment"># Показать справку</span>
-python looper.py --version|-v                          <span class="hljs-comment"># Показать версию</span>
+looper --<span class="hljs-built_in">help</span>|-h                              <span class="hljs-comment"># Показать справку</span>
+looper --version|-v                          <span class="hljs-comment"># Показать версию</span>
 
 <span class="hljs-comment"># Примеры использования:</span>
-python looper.py -r open_notepad
-python looper.py -d open_notepad  
-python looper.py -p open_notepad -f custom_actions.json
-python looper.py -sc open_notepad -o my_scenario --delay 1.5
+looper -r open_notepad
+looper -d open_notepad  
+looper -p open_notepad -f custom_actions.json
+looper -sc open_notepad -o my_scenario --delay 1.5
 </code></pre>
 <h2 id="запись">Запись</h2>
 <p>Пользователь вызывает программу в режиме записи и указывает в качестве параметра - имя действия. Например действие &quot;открыть notepad&quot;:</p>
-<pre><code class="language-bash">python looper.py --record open_notepad
+<pre><code class="language-bash">looper --record open_notepad
 <span class="hljs-comment"># или короткая форма:</span>
-python looper.py -r open_notepad
+looper -r open_notepad
 </code></pre>
 <p>Программа записыват все действия пользователя, которые он делает с мышью и клавиатурой до нажатия Esс.</p>
 <ul>
@@ -263,25 +262,34 @@ python looper.py -r open_notepad
     <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span>
 </code></pre>
+<p>Контракт на имена файлов с картинками:</p>
+<ul>
+<li>xxx.png --- скрин экрана в момент совершения действия, создаётся в момент создания log.json.</li>
+<li>xxx_с.png --- скрин экрана в момент совершения действия с красной точкой в месте расположения курсора, создаётся в момент создания log.json.</li>
+<li>xxx_rr.png --- референсный прямоугольник размером 50 на 50, создаётся при выполнении сценария в режиме dynamic.</li>
+</ul>
 <h2 id="воспроизведение">Воспроизведение</h2>
-<p>Воспроизводит действия пользователя, точнее базовые действия полученные на этапе декомпозиции.</p>
+<p>Воспроизводит действия пользователя, точнее базовые действия полученные на этапе декомпозиции (см следующий раздел).</p>
 <p>Вызывается командой</p>
-<pre><code class="language-bash">python looper.py --play open_notepad
+<pre><code class="language-bash">looper --play open_notepad
 <span class="hljs-comment"># или короткая форма:</span>
-python looper.py -p open_notepad
+looper -p open_notepad
 </code></pre>
 <p>Дополнительные параметры:</p>
 <ul>
 <li><code>--actions-file &lt;filename&gt;</code> или <code>-f &lt;filename&gt;</code> - имя файла с базовыми действиями. По умолчанию используется <code>actions_base.json</code></li>
+<li><code>--dynamic</code> если указывается, то при воспроизведении действий пользователя click_left, click_right для определения места клика используется динамический режим. В динамиеском режиме координаты для клика определяются по референсному прямоугольнику. Референсный прямоугольник это прямоугольник с центром в точке клика размером 50 на 50 в момент записи действий пользователя. Он получается из файла xxx.png и записывается в файл xxx_rr.png , когда запускается динамический режим воспроизведения. В момент когда нужно кликнуть мышкой программа ищет на экране референсный прямоугольник и кликает в его центр. Если референсного прямоугольника нет, программа ждёт 100 мс и вновь пытается найти референсный прямоугольник.</li>
 </ul>
-<p>Пример:</p>
-<pre><code class="language-bash">python looper.py -p open_notepad -f custom_actions.json
+<p>Примеры:</p>
+<pre><code class="language-bash">looper -p open_notepad -f custom_actions.json
+looper -p open_notepad -f custom_actions.json --dynamic
+looper -p open_notepad --dynamic
 </code></pre>
 <h2 id="декомпозиция">Декомпозиция</h2>
 <p>Вызывается командой:</p>
-<pre><code class="language-bash">python looper.py --decompose open_notepad
+<pre><code class="language-bash">looper --decompose open_notepad
 <span class="hljs-comment"># или короткая форма:</span>
-python looper.py -d open_notepad
+looper -d open_notepad
 </code></pre>
 <p>Программа раскладывает все действия пользователя из файла с логами
 ACTION_FOLDER/open_notepad/log.json
@@ -301,7 +309,8 @@ ACTION_FOLDER/open_notepad/log.json
             <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;left&quot;</span><span class="hljs-punctuation">,</span>
             <span class="hljs-attr">&quot;dir&quot;</span>   <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;up&quot;</span><span class="hljs-punctuation">,</span>
         <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-        max_delay <span class="hljs-punctuation">:</span> <span class="hljs-number">0.3</span> 
+        max_delay <span class="hljs-punctuation">:</span> <span class="hljs-number">0.3</span> <span class="hljs-punctuation">,</span>
+        location <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;static&quot;</span>
     <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
     <span class="hljs-punctuation">{</span>
         name <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;click right&quot;</span><span class="hljs-punctuation">,</span>
@@ -317,7 +326,7 @@ ACTION_FOLDER/open_notepad/log.json
             <span class="hljs-attr">&quot;button&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;right&quot;</span><span class="hljs-punctuation">,</span>
             <span class="hljs-attr">&quot;dir&quot;</span>   <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;up&quot;</span><span class="hljs-punctuation">,</span>
         <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-        max_delay <span class="hljs-punctuation">:</span> <span class="hljs-number">0.3</span> 
+        max_delay <span class="hljs-punctuation">:</span> <span class="hljs-number">0.3</span>
     <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
     <span class="hljs-punctuation">{</span>
         name <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;typing&quot;</span><span class="hljs-punctuation">,</span>
@@ -357,7 +366,8 @@ ACTION_FOLDER/open_notepad/log.json
         <span class="hljs-attr">&quot;consumed_indices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
             <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
             <span class="hljs-number">1</span>
-        <span class="hljs-punctuation">]</span>
+        <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;screen&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1.png&quot;</span>
     <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
     <span class="hljs-punctuation">{</span>
         <span class="hljs-attr">&quot;id&quot;</span>  <span class="hljs-punctuation">:</span> <span class="hljs-number">2</span><span class="hljs-punctuation">,</span>
@@ -400,16 +410,18 @@ ACTION_FOLDER/open_notepad/log.json
         <span class="hljs-attr">&quot;consumed_indices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
             <span class="hljs-number">9</span><span class="hljs-punctuation">,</span>
             <span class="hljs-number">10</span>
-        <span class="hljs-punctuation">]</span>
+        <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;screen&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2.png&quot;</span>
     <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span>
 </code></pre>
+<p>Указывает путь к сохранённому экрану предшествующего первому действию. Берётся из файла логов.</p>
 <p>Можно, чтобы LLM давала название/характеристику каждому действию по картинке.</p>
 <h2 id="создание-сценариев">Создание сценариев</h2>
 <p>Вызывается командой:</p>
-<pre><code class="language-bash">python looper.py --scenario open_notepad --output scenario_name
+<pre><code class="language-bash">looper --scenario open_notepad --output scenario_name
 <span class="hljs-comment"># или короткая форма:</span>
-python looper.py -sc open_notepad -o scenario_name
+looper -sc open_notepad -o scenario_name
 </code></pre>
 <p>Результат пишется в файл <code>ACTION_FOLDER/open_notepad/scenario_name.json</code>.</p>
 <p>Дополнительные параметры для создания сценариев:</p>
@@ -418,13 +430,13 @@ python looper.py -sc open_notepad -o scenario_name
 <p>Опишем, что можно сделать с базовыми действиями.</p>
 <h3 id="фиксированная-задержка">Фиксированная задержка.</h3>
 <p>Поставить фиксированную задержку после клика мышкой, enter, space. Для этого нужно написать:</p>
-<pre><code class="language-bash">python looper.py -sc open_notepad -o scenario_name --delay 2.5
+<pre><code class="language-bash">looper -sc open_notepad -o scenario_name --delay 2.5
 </code></pre>
 <p>где <code>2.5</code> - количество секунд для задержки. В созданном сценарии по этой команде все задержки перед клика мышкой, enter, space составляют 2.5 секунды.</p>
 <h3 id="изменить-текст-ввода">Изменить текст ввода.</h3>
 <p>Базовое действие typing имеет параметр &quot;text&quot;. На вход программе можно дать файл
 typing_parameters.csv с указанием всех значений параметров в ходе воспроизведения:</p>
-<pre><code class="language-bash">python looper.py -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
+<pre><code class="language-bash">looper -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
 </code></pre>
 <p>Формат файла typing_parameters.csv. Например, в списке actions_base.json всего имеются два действия типа typing : {&quot;login&quot;, &quot;pass&quot;}. Тогда файл typing_parameters.csv имеет следующий вид:</p>
 <table>
@@ -449,29 +461,9 @@ typing_parameters.csv с указанием всех значений парам
 </tbody>
 </table>
 <p>Программа для каждой строки файла typing_parameters.csv воспроизводит последовательность базовых действий с соответствующим набором параметров. Будем называть одно такое выполнение (для одной строки) сценарием. Между сценариями программа бездействует S секунд, где S указывается во время запуска:</p>
-<pre><code class="language-bash">python looper.py -sc open_notepad -o scenario_name --<span class="hljs-built_in">sleep</span> S
+<pre><code class="language-bash">looper -sc open_notepad -o scenario_name --<span class="hljs-built_in">sleep</span> S
 </code></pre>
 <p>По умолчанию S=3. Если typing_parameters.csv не задан, то берутся исходные параметры из записи actions_base.json.</p>
-<h3 id="параметр-клика-мышки">Параметр клика мышки.</h3>
-<p>Базовое действие &quot;wait&quot; имеет параметр event, то есть событие наступление которого следуют
-ждать прежде чем выполнять следующее действие. По умолчанию все event имеют тип timer и просто ждут фиксированное количество секунд.</p>
-<p>Рассмотрим другой тип события &quot;picOnScreen&quot; - ждёт пока на экране появится определённая картинка. Это событие может быть только перед действием &quot;клик мышки&quot;. Опишем какую картинку ждёт событие. В момент, когда наступает следующее событие, клик мышки, мы сохраняем скрин экрана и вырезаем из него референсный прямоугольник 10 на 10 с центром в точке клика. Событие для действия считается произошедшим, если на экране появился данный прямоугольник и, тогда в качестве координаты клика используется центра найденного прямоугольника. Параметр референсного прямоугольнка можно изменять.
-Файл с настройками событий указывается так:</p>
-<pre><code class="language-bash">python looper.py -sc open_notepad -o scenario_name --click-params click_parameters.json
-</code></pre>
-<p>Формат click_parameters.json</p>
-<pre><code class="language-json"><span class="hljs-punctuation">[</span>
-    <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">&quot;fn&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pic1.png&quot;</span>
-    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">&quot;fn&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pic2.png&quot;</span>
-    <span class="hljs-punctuation">}</span>
-<span class="hljs-punctuation">]</span>
-</code></pre>
-<p>В поле fn записывается имя файла с референсным прямоугольником</p>
 </div>
             
             

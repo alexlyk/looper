@@ -34,23 +34,23 @@
 
 ```bash
 # Общий формат
-python looper.py [режим] [действие] [параметры]
+looper [режим] [действие] [параметры]
 
 # Основные режимы:
-python looper.py --record|-r <action_name>              # Запись действий
-python looper.py --play|-p <action_name> [параметры]    # Воспроизведение
-python looper.py --decompose|-d <action_name>           # Декомпозиция на базовые действия  
-python looper.py --scenario|-sc <action_name> [параметры] # Создание сценариев
+looper --record|-r <action_name>              # Запись действий
+looper --play|-p <action_name> [параметры]    # Воспроизведение
+looper --decompose|-d <action_name>           # Декомпозиция на базовые действия  
+looper --scenario|-sc <action_name> [параметры] # Создание сценариев
 
 # Помощь
-python looper.py --help|-h                              # Показать справку
-python looper.py --version|-v                          # Показать версию
+looper --help|-h                              # Показать справку
+looper --version|-v                          # Показать версию
 
 # Примеры использования:
-python looper.py -r open_notepad
-python looper.py -d open_notepad  
-python looper.py -p open_notepad -f custom_actions.json
-python looper.py -sc open_notepad -o my_scenario --delay 1.5
+looper -r open_notepad
+looper -d open_notepad  
+looper -p open_notepad -f custom_actions.json
+looper -sc open_notepad -o my_scenario --delay 1.5
 ```
 
 ## Запись
@@ -58,9 +58,9 @@ python looper.py -sc open_notepad -o my_scenario --delay 1.5
 Пользователь вызывает программу в режиме записи и указывает в качестве параметра - имя действия. Например действие "открыть notepad": 
 
 ```bash
-python looper.py --record open_notepad
+looper --record open_notepad
 # или короткая форма:
-python looper.py -r open_notepad
+looper -r open_notepad
 ```
 
 Программа записыват все действия пользователя, которые он делает с мышью и клавиатурой до нажатия Esс. 
@@ -144,9 +144,9 @@ open_notepad_log.json
 Вызывается командой
 
 ```bash
-python looper.py --play open_notepad
+looper --play open_notepad
 # или короткая форма:
-python looper.py -p open_notepad
+looper -p open_notepad
 ```
 
 Дополнительные параметры:
@@ -155,9 +155,9 @@ python looper.py -p open_notepad
 
 Примеры:
 ```bash
-python looper.py -p open_notepad -f custom_actions.json
-python looper.py -p open_notepad -f custom_actions.json --dynamic
-python looper.py -p open_notepad --dynamic
+looper -p open_notepad -f custom_actions.json
+looper -p open_notepad -f custom_actions.json --dynamic
+looper -p open_notepad --dynamic
 ```
 
 
@@ -166,9 +166,9 @@ python looper.py -p open_notepad --dynamic
 Вызывается командой: 
 
 ```bash
-python looper.py --decompose open_notepad
+looper --decompose open_notepad
 # или короткая форма:
-python looper.py -d open_notepad
+looper -d open_notepad
 ```
 
 Программа раскладывает все действия пользователя из файла с логами 
@@ -310,9 +310,9 @@ ACTION_FOLDER/open_notepad/log.json
 Вызывается командой: 
 
 ```bash
-python looper.py --scenario open_notepad --output scenario_name
+looper --scenario open_notepad --output scenario_name
 # или короткая форма:
-python looper.py -sc open_notepad -o scenario_name
+looper -sc open_notepad -o scenario_name
 ```
 
 Результат пишется в файл `ACTION_FOLDER/open_notepad/scenario_name.json`.
@@ -328,7 +328,7 @@ python looper.py -sc open_notepad -o scenario_name
 Поставить фиксированную задержку после клика мышкой, enter, space. Для этого нужно написать:
 
 ```bash
-python looper.py -sc open_notepad -o scenario_name --delay 2.5
+looper -sc open_notepad -o scenario_name --delay 2.5
 ```
 
 где `2.5` - количество секунд для задержки. В созданном сценарии по этой команде все задержки перед клика мышкой, enter, space составляют 2.5 секунды.
@@ -338,7 +338,7 @@ python looper.py -sc open_notepad -o scenario_name --delay 2.5
 typing_parameters.csv с указанием всех значений параметров в ходе воспроизведения:
 
 ```bash
-python looper.py -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
+looper -sc open_notepad -o scenario_name --typing-params typing_parameters.csv
 ```
 
 Формат файла typing_parameters.csv. Например, в списке actions_base.json всего имеются два действия типа typing : {"login", "pass"}. Тогда файл typing_parameters.csv имеет следующий вид:
@@ -351,7 +351,7 @@ python looper.py -sc open_notepad -o scenario_name --typing-params typing_parame
 Программа для каждой строки файла typing_parameters.csv воспроизводит последовательность базовых действий с соответствующим набором параметров. Будем называть одно такое выполнение (для одной строки) сценарием. Между сценариями программа бездействует S секунд, где S указывается во время запуска:
 
 ```bash
-python looper.py -sc open_notepad -o scenario_name --sleep S
+looper -sc open_notepad -o scenario_name --sleep S
 ```
 
 По умолчанию S=3. Если typing_parameters.csv не задан, то берутся исходные параметры из записи actions_base.json.

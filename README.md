@@ -6,7 +6,10 @@
 
 ```bash
 pip install -r requirements.txt
+pip install -e .
 ```
+
+После установки команда `looper` будет доступна глобально.
 
 ## Конфигурация
 
@@ -18,32 +21,32 @@ pip install -r requirements.txt
 
 ### Запись действий
 ```bash
-python looper.py --record open_notepad
+looper --record open_notepad
 # или короткая форма:
-python looper.py -r open_notepad
+looper -r open_notepad
 ```
 
 
 ### Воспроизведение действий
 ```bash
-python looper.py --play open_notepad
+looper --play open_notepad
 # или короткая форма:
-python looper.py -p open_notepad
+looper -p open_notepad
 ```
 
 ### Декомпозиция на базовые действия
 ```bash
-python looper.py --decompose open_notepad
+looper --decompose open_notepad
 # или короткая форма:
-python looper.py -d open_notepad
+looper -d open_notepad
 ```
 
 
 ### Создание сценариев
 ```bash
-python looper.py --scenario open_notepad --output my_scenario
+looper --scenario open_notepad --output my_scenario
 # или короткая форма:
-python looper.py -sc open_notepad -o my_scenario
+looper -sc open_notepad -o my_scenario
 ```
 
 ## Структура файлов
