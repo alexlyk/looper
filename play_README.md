@@ -65,16 +65,7 @@ python looper.py -p open_notepad
 }
 ```
 
-### 5. Ожидание изображения на экране
-```json
-{
-    "name": "wait",
-    "event": {
-        "name": "picOnScreen",
-        "file": "reference_image.png"
-    }
-}
-```
+
 
 ## Использование
 

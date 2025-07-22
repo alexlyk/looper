@@ -186,14 +186,11 @@ class BaseActionDecomposer:
         return None
     
     def create_wait_action(self, time_seconds: float) -> Dict:
-        """Create a wait action with timer event"""
+        """Create a wait action with simplified structure"""
         wait_action = {
             'id': self.action_id_counter,
             'name': 'wait',
-            'event': {
-                'name': 'timer',
-                'time': time_seconds
-            }
+            'time': time_seconds
         }
         self.action_id_counter += 1
         return wait_action
@@ -329,7 +326,7 @@ class BaseActionDecomposer:
         for i, action in enumerate(typing_actions, 1):
             # Используем исходный текст как название колонки, заменяя пробелы на _
             original_text = action.get('text', f'typing_{i}')
-            column_name = original_text.replace(' ', '_').replace('+', 'plus').replace('-', 'minus')
+            column_name = original_text# original_text.replace(' ', '_').replace('+', 'plus').replace('-', 'minus')
             column_names.append(column_name)
             headers.append(column_name)
         

@@ -48,9 +48,6 @@ class ScenarioCreator:
         if typing_params_file:
             typing_data = self._load_typing_params(typing_params_file)
         
-        # Проверяем, нужно ли создавать динамические задержки
-        is_dynamic_delay = delay == "dynamic"
-        
         # Если есть typing_data, создаем несколько сценариев
         scenarios_count = len(typing_data) if typing_data else 1
         
@@ -66,42 +63,38 @@ class ScenarioCreator:
                 if action.get('name') == 'typing' and typing_data:
                     typing_row = typing_data[scenario_idx]
                     action_id = action.get('text')
+                    # print(f'action_id:{action_id}')
+                    # print(f'typing_row:{typing_row}')
                     if str(action_id) in typing_row:
                         new_action['text'] = typing_row[str(action_id)]
                     else:
                         # Если нет соответствующего ID, берем первое не-id значение
                         raise Exception(f"Ошибка обработке typing parameters")
                 
-                # Обрабатываем задержки
+                # Обрабатываем задержки для действий wait
                 if action.get('name') == 'wait':
-                    if delay and delay != "dynamic":
-                        # Фиксированная задержка - заменяем время
-                        new_action['event'] = {
-                            "name": "timer",
-                            "time": float(delay)
-                        }
-                    elif is_dynamic_delay:
-                        # Динамическая задержка - проверяем, есть ли после этого левый клик
-                        current_idx = self.base_actions.index(action)
-                        # Ищем следующий левый клик после текущего wait
-                        next_click_action = None
-                        next_action = self.base_actions[current_idx + 1]
-                        if next_action.get('name') == 'click left':
-                            next_click_action = next_action
-                            
-                        
-                        if next_click_action:
-                            # Создаем picOnScreen событие
-                            screen_file = next_click_action.get('screen')
-                            if screen_file:
-                                # Создаем имя файла для референсного прямоугольника
-                                pic_name = screen_file.replace('.png', '_rr.png')
-                                new_action['event'] = {
-                                    "name": "picOnScreen",
-                                    "pic": pic_name
-                                }
-                                # Создаем референсный прямоугольник
-                                self._create_reference_rectangle(screen_file, pic_name, next_click_action)
+                    if delay is not None:
+                        # Фиксированная задержка - используем новую упрощенную структуру
+                        new_action['time'] = float(delay)
+                        # Удаляем старую структуру event если она есть
+                        if 'event' in new_action:
+                            del new_action['event']
+                    else:
+                        # Если задержка не указана, оставляем исходную структуру
+                        # Но приводим к новому формату если используется старая структура
+                        if 'event' in new_action and new_action['event'].get('name') == 'timer':
+                            new_action['time'] = new_action['event']['time']
+                            del new_action['event']
+                
+                # Создаем референсные прямоугольники для кликов мыши если есть скриншоты
+                # (для использования в динамическом режиме воспроизведения)
+                if action.get('name') in ['click left', 'click right'] and 'screen' in action:
+                    screen_file = action.get('screen')
+                    if screen_file:
+                        # Создаем имя файла для референсного прямоугольника
+                        rr_name = screen_file.replace('.png', '_rr.png')
+                        # Создаем референсный прямоугольник (если его еще нет)
+                        self._create_reference_rectangle(screen_file, rr_name, action)
                 
                 scenario_actions.append(new_action)
             
@@ -112,10 +105,7 @@ class ScenarioCreator:
                 sleep_action = {
                     "id": self.next_id,
                     "name": "wait",
-                    "event": {
-                        "name": "timer", 
-                        "time": sleep_time
-                    }
+                    "time": sleep_time
                 }
                 self.next_id += 1
                 modified_actions.append(sleep_action)
@@ -150,13 +140,6 @@ class ScenarioCreator:
         except Exception as e:
             raise Exception(f"Ошибка при чтении файла параметров ввода: {e}")
     
-    def _load_click_params(self, click_params_file):
-        """Загружает параметры клика из JSON файла"""
-        try:
-            with open(click_params_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            raise Exception(f"Ошибка при чтении файла параметров клика: {e}")
     
     def _create_reference_rectangle(self, screen_file, pic_name, click_action):
         """Создает референсный прямоугольник 50x50 из скриншота"""

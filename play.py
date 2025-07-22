@@ -37,12 +37,33 @@ def on_key_press(key):
         return False  # Останавливаем слушатель
 
 
-def execute_mouse_click(action):
+def execute_mouse_click(action, dynamic=False, action_dir=None):
     """Выполняет клик мышью"""
     x = action.get('x', 0)
     y = action.get('y', 0)
     button = action.get('button', 'left')
     
+    if dynamic and 'screen' in action and action_dir:
+        # Динамический режим - ищем координаты по референсному прямоугольнику
+        screen_file = action.get('screen', '')
+        rr_file = screen_file.replace('.png', '_rr.png')
+        rr_path = action_dir / rr_file
+        
+        if not rr_path.exists():
+            # Создаем референсный прямоугольник если его нет
+            create_reference_rectangle(action_dir / screen_file, rr_path, x, y)
+        
+        # Ищем референсный прямоугольник на экране
+        found_coords = find_reference_rectangle_on_screen(rr_path)
+        if found_coords:
+            x, y = found_coords
+            print(f"Динамический режим: найден референсный прямоугольник в ({x}, {y})")
+        else:
+            print(f"Динамический режим: референсный прямоугольник {rr_path} не найден. Останавливаем исполнение сценария.")# используем исходные координаты ({x}, {y})")
+            return False
+    
+
+
     print(f"Клик {button} кнопкой мыши в точке ({x}, {y})")
     
     # Устанавливаем курсор в нужную позицию
@@ -57,6 +78,8 @@ def execute_mouse_click(action):
         win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, x, y, 0, 0)
         time.sleep(0.05)
         win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, x, y, 0, 0)
+
+    return True
 
 
 def execute_typing(action):
@@ -85,15 +108,114 @@ def execute_space():
     kb.release(keyboard.Key.space)
 
 
+def create_reference_rectangle(source_image_path, output_path, center_x, center_y, size=50):
+    """Создает референсный прямоугольник размером 50x50 с центром в указанных координатах"""
+    if not PIL_AVAILABLE:
+        print("Внимание: PIL не доступен, референсный прямоугольник не может быть создан")
+        return False
+    
+    try:
+        if not source_image_path.exists():
+            print(f"Исходное изображение не найдено: {source_image_path}")
+            return False
+        
+        # Загружаем исходное изображение
+        image = Image.open(source_image_path)
+        
+        # Вычисляем координаты прямоугольника
+        half_size = size // 2
+        left = max(0, center_x - half_size)
+        top = max(0, center_y - half_size)
+        right = min(image.width, center_x + half_size)
+        bottom = min(image.height, center_y + half_size)
+        
+        # Вырезаем прямоугольник
+        reference_rect = image.crop((left, top, right, bottom))
+        
+        # Сохраняем
+        reference_rect.save(output_path)
+        print(f"Создан референсный прямоугольник: {output_path}")
+        return True
+        
+    except Exception as e:
+        print(f"Ошибка при создании referencer rectangle: {e}")
+        return False
+
+
+def find_reference_rectangle_on_screen(rr_path, timeout=15, threshold=0.9):
+    """Ищет референсный прямоугольник на экране"""
+    if not rr_path.exists():
+        print(f"Файл референсного прямоугольника не найден: {rr_path}")
+        return None
+    
+    template = cv2.imread(str(rr_path), cv2.IMREAD_COLOR)
+    if template is None:
+        print(f"Не удалось загрузить референсный прямоугольник: {rr_path}")
+        return None
+    
+    start_time = time.time()
+    
+    while time.time() - start_time < timeout:
+        # Получаем скриншот экрана
+        screenshot = take_screenshot()
+        if screenshot is None:
+            time.sleep(0.1)
+            continue
+        
+        # Ищем шаблон на скриншоте
+        screen = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        result = cv2.matchTemplate(screen, template, cv2.TM_CCORR_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(result)
+        
+        if max_val >= threshold:
+            # Возвращаем центр найденного прямоугольника
+            template_h, template_w = template.shape[:2]
+            center_x = max_loc[0] + template_w // 2
+            center_y = max_loc[1] + template_h // 2
+            print(f"Референсный прямоугольник {rr_path} найден в центре ({center_x}, {center_y}) с совпадением {max_val:.3f}")
+
+            # check other location
+
+            # Create a draw object for the screenshot
+            draw = ImageDraw.Draw(screenshot)
+
+            # Get the coordinates from max_loc
+            top_left_x, top_left_y = max_loc
+            bottom_right_x = top_left_x + template_w
+            bottom_right_y = top_left_y + template_h
+
+            # Draw rectangle at the max_loc position
+            draw.rectangle(
+                [
+                    (top_left_x, top_left_y),
+                    (bottom_right_x, bottom_right_y)
+                ],
+                outline="red", width=3,fill="yellow"
+            )
+            screen = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+            result2 = cv2.matchTemplate(screen, template, cv2.TM_CCORR_NORMED)
+            _, max_val2, _, max_loc2 = cv2.minMaxLoc(result2)
+            if max_val2>= threshold and max_val - max_val2<0.0001:
+                print(f'Внимание! Найдено несколько референсных прямоугольников для {rr_path}.')
+                print(f'max_val = {max_val}, max_val2 = {max_val2}')
+
+            return (center_x, center_y)
+        
+        # Ждем 100ms как указано в концепции
+        time.sleep(0.1)
+    
+    print(f"Референсный прямоугольник не найден в течение {timeout} секунд")
+    return None
+
+
 def execute_wait(action):
     """Выполняет ожидание"""
     global stop_playback
     
-    event = action.get('event', {})
-    event_name = event.get('name', 'timer')
-    
-    if event_name == 'timer':
-        wait_time = event.get('time', 1.0)
+    # Упрощенная структура wait согласно новой концепции
+    if 'time' in action:
+        # Новый формат: прямо указано время
+        wait_time = action.get('time', 1.0)
         print(f"Ожидание {wait_time} секунд")
         
         # Разбиваем длительное ожидание на короткие интервалы для возможности прерывания
@@ -104,12 +226,31 @@ def execute_wait(action):
             time.sleep(sleep_time)
             elapsed += sleep_time
             
-    elif event_name == 'picOnScreen':
-        pic_file = event.get('file', '')
-        print(f"Ожидание появления изображения: {pic_file}")
-        wait_for_image_on_screen(pic_file)
+    elif 'event' in action:
+        # Старый формат для совместимости
+        event = action.get('event', {})
+        event_name = event.get('name', 'timer')
+        
+        if event_name == 'timer':
+            wait_time = event.get('time', 1.0)
+            print(f"Ожидание {wait_time} секунд")
+            
+            # Разбиваем длительное ожидание на короткие интервалы для возможности прерывания
+            elapsed = 0
+            interval = 0.1  # Проверяем каждые 100ms
+            while elapsed < wait_time and not stop_playback:
+                sleep_time = min(interval, wait_time - elapsed)
+                time.sleep(sleep_time)
+                elapsed += sleep_time
+                
+        elif event_name == 'picOnScreen':
+            pic_file = event.get('file', '')
+            print(f"Ожидание появления изображения: {pic_file}")
+            wait_for_image_on_screen(pic_file)
+        else:
+            print(f"Неизвестный тип события: {event_name}")
     else:
-        print(f"Неизвестный тип события: {event_name}")
+        print("Действие wait без указания времени или события")
 
 
 def wait_for_image_on_screen(image_file, timeout=30, threshold=0.8):
@@ -157,7 +298,7 @@ def take_screenshot():
     try:
         import pyautogui
         screenshot = ImageGrab.grab(all_screens=True)
-        return cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        return screenshot
     except ImportError:
         print("Для работы с изображениями требуется установить pyautogui: pip install pyautogui")
         return None
@@ -220,7 +361,7 @@ def create_actions_base_if_needed(action_name, actions_file=None):
         return False
 
 
-def play_actions(action_name, actions_file=None):
+def play_actions(action_name, actions_file=None, dynamic=False):
     """Основная функция воспроизведения действий"""
     global stop_playback
     
@@ -229,6 +370,7 @@ def play_actions(action_name, actions_file=None):
     
     # Получаем конфигурацию
     cfg = get_config()
+    action_dir = cfg.get_action_path(action_name)
     
     # Если actions_file не указан, используем стандартный путь
     if actions_file is None:
@@ -237,11 +379,12 @@ def play_actions(action_name, actions_file=None):
         actions_file = Path(actions_file+'.json')
         # Если путь не абсолютный, делаем его относительно папки действия
         if not actions_file.is_absolute():
-            action_dir = cfg.get_action_path(action_name)
             actions_file = action_dir / actions_file
     
     print(f"Воспроизведение действия '{action_name}'")
     print(f"Файл действий: {actions_file}")
+    if dynamic:
+        print("Динамический режим: будет использоваться поиск по референсным прямоугольникам")
     
     # Пробуем создать actions_base.json если его нет
     if not actions_file.exists():
@@ -283,7 +426,8 @@ def play_actions(action_name, actions_file=None):
         
         try:
             if action_name in ['click left', 'click right']:
-                execute_mouse_click(action)
+                if not execute_mouse_click(action, dynamic, action_dir):
+                    break
             elif action_name == 'typing':
                 execute_typing(action)
             elif action_name == 'enter':
