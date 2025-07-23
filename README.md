@@ -42,7 +42,7 @@ python main.py --help
 
 Программа использует конфигурационный файл `looper.config` для настройки путей и параметров.
 
-По умолчанию все действия сохраняются в папку `./actions`.
+По умолчанию все действия сохраняются в папку `./data`.
 
 ## Использование
 
@@ -124,7 +124,7 @@ python main.py --scenario open_notepad --output my_scenario
 
 Файл `looper.config`:
 ```ini
-ACTION_FOLDER = ./actions
+ACTION_FOLDER = ./data
 ```
 
 Можно изменить папку для сохранения действий, например:
