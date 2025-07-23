@@ -2,6 +2,28 @@
 
 Программа для записи, декомпозиции и воспроизведения действий пользователя (мышь и клавиатура).
 
+## Структура проекта
+
+```
+looper/
+├── src/                    # Исходный код приложения
+│   ├── __init__.py
+│   ├── looper.py          # Главный модуль
+│   ├── config.py          # Конфигурация
+│   ├── rec.py             # Модуль записи
+│   ├── play.py            # Модуль воспроизведения
+│   ├── decomposer.py      # Модуль декомпозиции
+│   ├── mouse_clicker.py   # Утилиты для работы с мышью
+│   ├── scenario_creator.py # Создание сценариев
+│   └── scenario_viewer.py  # Просмотр сценариев
+├── main.py                # Точка входа приложения
+├── setup.py               # Установочный скрипт
+├── requirements.txt       # Зависимости
+├── actions/               # Папка с записанными действиями
+├── data/                  # Тестовые данные
+└── looper.config          # Конфигурационный файл
+```
+
 ## Установка
 
 ```bash
@@ -9,7 +31,12 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-После установки команда `looper` будет доступна глобально.
+После установки команда `looper` будет доступна глобально из любой папки.
+
+Альтернативный способ запуска (без установки):
+```bash
+python main.py --help
+```
 
 ## Конфигурация
 
@@ -21,32 +48,46 @@ pip install -e .
 
 ### Запись действий
 ```bash
+# После установки пакета (рекомендуется):
 looper --record open_notepad
 # или короткая форма:
 looper -r open_notepad
-```
 
+# Альтернативно (без установки):
+python main.py --record open_notepad
+```
 
 ### Воспроизведение действий
 ```bash
+# После установки пакета:
 looper --play open_notepad
 # или короткая форма:
 looper -p open_notepad
+
+# Альтернативно (без установки):
+python main.py --play open_notepad
 ```
 
 ### Декомпозиция на базовые действия
 ```bash
+# После установки пакета:
 looper --decompose open_notepad
 # или короткая форма:
 looper -d open_notepad
-```
 
+# Альтернативно (без установки):
+python main.py --decompose open_notepad
+```
 
 ### Создание сценариев
 ```bash
+# После установки пакета:
 looper --scenario open_notepad --output my_scenario
 # или короткая форма:
 looper -sc open_notepad -o my_scenario
+
+# Альтернативно (без установки):
+python main.py --scenario open_notepad --output my_scenario
 ```
 
 ## Структура файлов

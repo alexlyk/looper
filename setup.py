@@ -5,15 +5,20 @@ setup(
     version="1.0.0",
     description="Automation tool for recording and replaying user actions",
     author="alexlyk",
-    packages=find_packages(),
-    py_modules=["looper", "config", "decomposer", "mouse_clicker", "play", "rec", "scenario_creator"],
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     entry_points={
         "console_scripts": [
             "looper=looper:main",
         ],
     },
     install_requires=[
-        # Добавьте зависимости из requirements.txt если есть
+        "pynput>=1.7.6",
+        "opencv-python>=4.5.0",
+        "pyautogui>=0.9.54",
+        "pywin32>=306",
+        "numpy>=1.21.0",
+        "Pillow>=8.0.0",
     ],
     python_requires=">=3.7",
     classifiers=[

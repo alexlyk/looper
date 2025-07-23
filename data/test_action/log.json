@@ -1,0 +1,19 @@
+[
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "down",
+        "x": 779,
+        "y": 2131,
+        "timestamp": 2.256812810897827,
+        "screen": "1.png"
+    },
+    {
+        "source": "mouse",
+        "button": "left",
+        "dir": "up",
+        "x": 779,
+        "y": 2131,
+        "timestamp": 2.583142042160034
+    }
+]
