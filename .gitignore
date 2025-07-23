@@ -155,7 +155,7 @@ $RECYCLE.BIN/
 # Project specific files
 # Новая папка с действиями
 actions/
-
+data/
 
 
 # Backup files
@@ -163,3 +163,5 @@ actions/
 
 draft.ipynb
 *.png
+
+TODO.md
