@@ -77,7 +77,11 @@ class LooperConfig:
         """Возвращает путь к файлу параметров typing для действия"""
         if typing_parameters==None:
             return None
-        return self.get_action_path(action_name) / f"{typing_parameters}.csv"
+        # Убираем расширение .csv если оно уже есть, и добавляем .csv
+        if typing_parameters.endswith('.csv'):
+            return self.get_action_path(action_name) / typing_parameters
+        else:
+            return self.get_action_path(action_name) / f"{typing_parameters}.csv"
 
     def get_typing_parameters_base_file_path(self, action_name):
         """Возвращает путь к файлу базовых параметров typing для действия"""

@@ -63,11 +63,35 @@ def decompose_action(action_name):
         print(f"Ошибка при декомпозиции: {e}")
         sys.exit(1)
 
-def play_action(action_name, actions_file=None, dynamic=False):
+def play_action(action_name, actions_file=None, dynamic=False, delay=None, typing_params=None):
     """Воспроизведение действий"""
     print(f"Воспроизведение действия '{action_name}'...")
     if dynamic:
         print("Динамический режим включен")
+    
+    # Проверяем, нужно ли создать сценарий перед воспроизведением
+    if delay is not None or typing_params is not None:
+        # Создаем имя сценария
+        scenario_parts = []
+        if delay is not None:
+            scenario_parts.append("fix_delay")
+        if typing_params is not None:
+            # Используем имя файла без расширения
+            typing_name = Path(typing_params).stem
+            scenario_parts.append(typing_name)
+        
+        scenario_name = "_".join(scenario_parts)
+        print(f"Создание временного сценария '{scenario_name}' с параметрами...")
+        
+        # Создаем сценарий
+        try:
+            delay_value = float(delay) if delay is not None else None
+            create_scenario(action_name, scenario_name, delay_value, typing_params, None, 3)
+            # Используем созданный сценарий вместо actions_file
+            actions_file = scenario_name
+        except Exception as e:
+            print(f"Ошибка при создании сценария: {e}")
+            sys.exit(1)
     
     # Импорт и запуск модуля воспроизведения
     try:
@@ -132,9 +156,11 @@ def main():
 Примеры использования:
   looper -r open_notepad
   looper -d open_notepad  
+  looper -p open_notepad --dynamic
+  looper -p open_notepad --dynamic --delay 2.5 
+  looper -p open_notepad --dynamic --delay 2.5 --typing-params xxx.csv
   looper -p open_notepad -f custom_actions.json
   looper -p open_notepad -f custom_actions.json --dynamic
-  looper -p open_notepad --dynamic
   looper -sc open_notepad -o my_scenario --delay 1.5
         """
     )
@@ -217,7 +243,7 @@ def main():
         elif args.decompose:
             decompose_action(args.decompose)
         elif args.play:
-            play_action(args.play, args.actions_file, args.dynamic)
+            play_action(args.play, args.actions_file, args.dynamic, args.delay, args.typing_params)
         elif args.scenario:
             if not args.output:
                 print("Ошибка: для режима --scenario необходимо указать --output")
