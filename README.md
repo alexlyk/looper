@@ -1,82 +1,82 @@
-# Looper - Автоматизация действий пользователя
+# Looper - User Action Automation
 
-Программа для записи, декомпозиции и воспроизведения действий пользователя (мышь и клавиатура).
+A program for recording, decomposing, and replaying user actions (mouse and keyboard).
 
-Требования к системе: Windows, без масштабирование экрана.
+System requirements: Windows, without screen scaling.
 
-## Установка
+## Installation
 
 ```bash
 pip install -r requirements.txt
 pip install -e .
 ```
 
-После установки команда `looper` будет доступна глобально из любой папки.
+After installation, the `looper` command will be available globally from any folder.
 
-Альтернативный способ запуска (без установки):
+Alternative way to run (without installation):
 ```bash
 python main.py --help
 ```
 
-## Конфигурация
+## Configuration
 
-Программа использует конфигурационный файл `looper.config` для настройки путей и параметров.
+The program uses the `looper.config` configuration file to set up paths and parameters.
 
-По умолчанию все действия сохраняются в папку `./data`.
+By default, all actions are saved to the `./data` folder.
 
-## Использование
+## Usage
 
-### Запись действий
+### Recording Actions
 ```bash
-# После установки пакета (рекомендуется):
+# After package installation (recommended):
 looper --record open_notepad
-# или короткая форма:
+# or short form:
 looper -r open_notepad
 
-# Альтернативно (без установки):
+# Alternatively (without installation):
 python main.py --record open_notepad
 ```
 
-### Воспроизведение действий
+### Playing Actions
 ```bash
-# Базовое воспроизведение
+# Basic playback
 looper --play open_notepad
-# или короткая форма:
+# or short form:
 looper -p open_notepad
 
-# Воспроизведение с фиксированной задержкой
+# Playback with fixed delay
 looper -p open_notepad --delay 2.5
 
-# Воспроизведение с параметрами из CSV файла
+# Playback with parameters from CSV file
 looper -p open_notepad --typing-params typing_parameters.csv
 
-# Динамический режим (поиск по референсным прямоугольникам)
+# Dynamic mode (search by reference rectangles)
 looper -p open_notepad --dynamic
 
-# Комбинированные режимы
+# Combined modes
 looper -p open_notepad --dynamic --delay 2.5
 looper -p open_notepad --dynamic --delay 2.5 --typing-params xxx.csv
 ```
 
-## Параметры командной строки
+## Command Line Parameters
 
-### Основные режимы:
-- `--record, -r <action_name>` - Запись действий пользователя
-- `--play, -p <action_name>` - Воспроизведение действий
-- `--help, -h` - Показать справку
-- `--version, -v` - Показать версию
+### Main modes:
+- `--record, -r <action_name>` - Record user actions
+- `--play, -p <action_name>` - Play actions
+- `--help, -h` - Show help
+- `--version, -v` - Show version
 
-### Параметры для воспроизведения и создания сценариев:
+### Parameters for playback and scenario creation:
 
-- `--dynamic` - Динамический режим воспроизведения (поиск по референсным прямоугольникам)
-- `--delay <seconds>` - Фиксированная задержка после клика, enter, space (в секундах)
-- `--typing-params <csv_file>` - CSV файл с параметрами для typing действий
-- `--sleep <seconds>` - Время ожидания между сценариями в секундах (по умолчанию: 3)
+- `--dynamic` - Dynamic playback mode (search by reference rectangles)
+- `--delay <seconds>` - Fixed delay after click, enter, space (in seconds)
+- `--typing-params <csv_file>` - CSV file with parameters for typing actions
+- `--sleep <seconds>` - Wait time between scenarios in seconds (default: 3)
 
 
-## Формат CSV файла для typing параметров
+## CSV File Format for Typing Parameters
 
-Файл `typing_parameters.csv` позволяет задать различные значения для typing действий:
+The `typing_parameters.csv` file allows you to set different values for typing actions:
 
 ```csv
 id,notepad,hello world,C:\Projects\looper\data\open_notepad,2
@@ -84,49 +84,49 @@ id,notepad,hello world,C:\Projects\looper\data\open_notepad,2
 2,calculator,goodbye world,D:\MyPath,5
 ```
 
-- Первая строка содержит заголовки колонок, соответствующие тексту typing действий
-- Каждая последующая строка представляет один сценарий выполнения
-- Программа выполнит сценарий для каждой строки с соответствующими параметрами
-- Между выполнениями сценариев программа ждет заданное время (параметр `--sleep`, по умолчанию 3 секунды)
+- The first row contains column headers corresponding to the text of typing actions
+- Each subsequent row represents one execution scenario
+- The program will execute the scenario for each row with the corresponding parameters
+- Between scenario executions, the program waits for the specified time (`--sleep` parameter, default 3 seconds)
 
-## Возможности
+## Features
 
-- **Запись**: Фиксирует все действия мыши и клавиатуры до нажатия ESC.  Поддерживает только: английскую раскладку, клавиши пробел, enter.
-- **Воспроизведение**: 
-  - Выполняет записанные действия
-  - Поддерживает динамический режим (поиск по референсным прямоугольникам)
-  - Создание сценариев с фиксированной задержкой
-  - Использование параметров из CSV файлов для typing действий
-- **Прерывание**: Нажатие ESC останавливает запись или воспроизведение
+- **Recording**: Captures all mouse and keyboard actions until ESC is pressed. Supports only: English layout, space, enter keys.
+- **Playback**: 
+  - Executes recorded actions
+  - Supports dynamic mode (search by reference rectangles)
+  - Creating scenarios with fixed delay
+  - Using parameters from CSV files for typing actions
+- **Interruption**: Pressing ESC stops recording or playback
 
-## Примеры использования
+## Usage Examples
 
-### Полный цикл работы:
+### Complete workflow:
 ```bash
-# 1. Записать действия
+# 1. Record actions
 looper -r open_notepad
 
-# 2. Воспроизвести стандартно
+# 2. Play back normally
 looper -p open_notepad
 
-# 3. Воспроизвести с динамическим режимом
+# 3. Play back with dynamic mode
 looper -p open_notepad --dynamic
 
-# 4. Воспроизвести с фиксированной задержкой 2.5 секунды
+# 4. Play back with fixed delay of 2.5 seconds
 looper -p open_notepad --delay 2.5
 
-# 5. Воспроизвести с параметрами из CSV файла
+# 5. Play back with parameters from CSV file
 looper -p open_notepad --typing-params typing_parameters_base.csv
 
-# 6. Комбинированный режим
+# 6. Combined mode
 looper -p open_notepad --dynamic --delay 2.5 --typing-params typing_parameters_base.csv
 
 ```
 
-## Автор
+## Author
 
 **Lykov Alexander**
 
-## Лицензия
+## License
 
-Этот проект распространяется под лицензией MIT. Подробности смотрите в файле [LICENSE](LICENSE).
+This project is distributed under the MIT license. See the [LICENSE](LICENSE) file for details.
