@@ -7,6 +7,10 @@ Created on Thu Apr 10 10:01:13 2025
 
 import win32api, win32con
 import time
+
+import ctypes
+from ctypes import wintypes
+
 def click_left(x,y):
     win32api.SetCursorPos((x,y))
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
@@ -19,6 +23,24 @@ def click_right(x,y):
 
 def get_cursor_coordinates():
     return win32api.GetCursorPos()
+
+
+def get_virtual_screen_bounds():
+    """Получить границы виртуального экрана (включая все мониторы)"""
+    user32 = ctypes.windll.user32
+    
+    # Получаем размеры виртуального экрана
+    left = user32.GetSystemMetrics(76)    # SM_XVIRTUALSCREEN
+    top = user32.GetSystemMetrics(77)     # SM_YVIRTUALSCREEN
+    width = user32.GetSystemMetrics(78)   # SM_CXVIRTUALSCREEN
+    height = user32.GetSystemMetrics(79)  # SM_CYVIRTUALSCREEN
+    
+    return {
+        'min_x': left,
+        'min_y': top,
+        'max_x': left + width - 1,
+        'max_y': top + height - 1
+    }
 
 
 VK_CODE = {'backspace':0x08,

@@ -20,6 +20,7 @@ except ImportError:
     PIL_AVAILABLE = False
 
 
+
 def get_layout():
     """Возвращает идентификатор текущей раскладки клавиатуры"""
     hwnd = ctypes.windll.user32.GetForegroundWindow()
@@ -41,7 +42,11 @@ def take_screenshot(action_dir, screen_counter):
         # Делаем скриншот всего экрана (всех мониторов)
         screenshot = ImageGrab.grab(all_screens=True)
         screenshot.save(screenshot_path)
-        x, y = mc.get_cursor_coordinates()
+        
+        _x, _y = mc.get_cursor_coordinates()
+        bounds = mc.get_virtual_screen_bounds()
+        x = _x - bounds['min_x']
+        y = _y - bounds['min_y']
         # draw cursor 
         draw = ImageDraw.Draw(screenshot)
         cursor_radius = 5  # радиус кружка-курсора

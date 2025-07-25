@@ -9,6 +9,7 @@ import copy
 import sys
 from pathlib import Path
 from config import get_config
+import mouse_clicker as mc
 
 
 class ScenarioCreator:
@@ -159,8 +160,11 @@ class ScenarioCreator:
             # Открываем исходное изображение
             with Image.open(screen_path) as img:
                 # Получаем координаты клика
-                x = click_action.get('x', 0)
-                y = click_action.get('y', 0)
+                _x = click_action.get('x', 0)
+                _y = click_action.get('y', 0)
+                bounds = mc.get_virtual_screen_bounds()
+                x = _x - bounds['min_x']
+                y = _y - bounds['min_y'] 
                 
                 # Вычисляем границы прямоугольника 50x50 с центром в точке клика
                 left = max(0, x - 25)

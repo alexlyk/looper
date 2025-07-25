@@ -14,6 +14,7 @@ import win32con
 import win32gui
 from pynput import keyboard
 from config import get_config
+import mouse_clicker as mc
 
 # Попытка импорта PIL для скриншотов
 try:
@@ -51,12 +52,17 @@ def execute_mouse_click(action, dynamic=False, action_dir=None):
         
         if not rr_path.exists():
             # Создаем референсный прямоугольник если его нет
-            create_reference_rectangle(action_dir / screen_file, rr_path, x, y)
+            bounds = mc.get_virtual_screen_bounds()
+            _x = x - bounds['min_x']
+            _y = y - bounds['min_y'] 
+            create_reference_rectangle(action_dir / screen_file, rr_path, _x, _y)
         
         # Ищем референсный прямоугольник на экране
         found_coords = find_reference_rectangle_on_screen(rr_path)
         if found_coords:
-            x, y = found_coords
+            _x, _y = found_coords
+            x = _x + bounds['min_x']
+            y = _y + bounds['min_y']
             print(f"Динамический режим: найден референсный прямоугольник в ({x}, {y})")
         else:
             print(f"Динамический режим: референсный прямоугольник {rr_path} не найден. Останавливаем исполнение сценария.")# используем исходные координаты ({x}, {y})")
