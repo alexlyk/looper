@@ -6,7 +6,7 @@ from pathlib import Path
 from config import get_config
 
 class BaseActionDecomposer:
-    def __init__(self, max_click_delay: float = 0.5):
+    def __init__(self, max_click_delay: float = 5.5):
         self.max_click_delay = max_click_delay
         self.base_actions = []
         self.action_id_counter = 1

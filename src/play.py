@@ -49,10 +49,11 @@ def execute_mouse_click(action, dynamic=False, action_dir=None):
         screen_file = action.get('screen', '')
         rr_file = screen_file.replace('.png', '_rr.png')
         rr_path = action_dir / rr_file
+        bounds = mc.get_virtual_screen_bounds()
         
         if not rr_path.exists():
             # Создаем референсный прямоугольник если его нет
-            bounds = mc.get_virtual_screen_bounds()
+            
             _x = x - bounds['min_x']
             _y = y - bounds['min_y'] 
             create_reference_rectangle(action_dir / screen_file, rr_path, _x, _y)
