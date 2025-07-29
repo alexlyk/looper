@@ -69,6 +69,20 @@ def play_action(action_name, actions_file=None, dynamic=False, delay=None, typin
     if dynamic:
         print("Динамический режим включен")
     
+    # Проверяем, существует ли файл базовых действий
+    cfg = get_config()
+    actions_base_file = cfg.get_actions_base_file_path(action_name)
+    
+    if not actions_base_file.exists():
+        # Проверяем, есть ли файл лога для декомпозиции
+        log_file = cfg.get_log_file_path(action_name)
+        if log_file.exists():
+            print(f"Файл базовых действий не найден. Выполняем декомпозицию...")
+            decompose_action(action_name)
+        else:
+            print(f"Ошибка: файл лога '{log_file}' не найден. Необходимо сначала записать действия.")
+            sys.exit(1)
+    
     # Проверяем, нужно ли создать сценарий перед воспроизведением
     if delay is not None or typing_params is not None:
         # Создаем имя сценария
