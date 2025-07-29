@@ -155,10 +155,11 @@ def main():
         epilog="""
 Примеры использования:
   looper -r open_notepad
-  looper -d open_notepad  
   looper -p open_notepad --dynamic
   looper -p open_notepad --dynamic --delay 2.5 
   looper -p open_notepad --dynamic --delay 2.5 --typing-params xxx.csv
+  Для разработчиков:
+  looper -d open_notepad 
   looper -p open_notepad -f custom_actions.json
   looper -p open_notepad -f custom_actions.json --dynamic
   looper -sc open_notepad -o my_scenario --delay 1.5

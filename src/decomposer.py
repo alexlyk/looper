@@ -6,7 +6,7 @@ from pathlib import Path
 from config import get_config
 
 class BaseActionDecomposer:
-    def __init__(self, max_click_delay: float = 5.5):
+    def __init__(self, max_click_delay: float = 50.5):
         self.max_click_delay = max_click_delay
         self.base_actions = []
         self.action_id_counter = 1
@@ -50,40 +50,45 @@ class BaseActionDecomposer:
         x, y = action.get('x'), action.get('y')
         down_timestamp = action.get('timestamp')
         
-        for i in range(start_index + 1, len(actions)):
-            next_action = actions[i]
+        # for i in range(start_index + 1, len(actions)):
+        i = min(start_index + 1, len(actions) -1)
+        next_action = actions[i]
+        
+        # Check if this is the matching up event
+        if (next_action.get('source') == 'mouse' and
+            next_action.get('dir') == 'up' and
+            next_action.get('button') == button):
+
+            consumed_indices = [start_index, i]
+            up_timestamp = next_action.get('timestamp')
+            delay = up_timestamp - down_timestamp
+        else: # произошло залипание кнопки вверх
+            consumed_indices = [start_index]
+            delay = 0.05
+            up_timestamp = down_timestamp + delay
             
-            # Check if this is the matching up event
-            if (next_action.get('source') == 'mouse' and
-                next_action.get('dir') == 'up' and
-                next_action.get('button') == button and
-                abs(next_action.get('x') - x)<10 and
-                abs(next_action.get('y') - y)<10):
-                
-                up_timestamp = next_action.get('timestamp')
-                delay = up_timestamp - down_timestamp
-               
-                # Check if within max delay
-                if delay <= self.max_click_delay:
-                    base_action = {
-                        'id': self.action_id_counter,
-                        'name': f'click {button}',
-                        'type': 'mouse_click',
-                        'button': button,
-                        'x': x,
-                        'y': y,
-                        'start_timestamp': down_timestamp,
-                        'end_timestamp': up_timestamp,
-                        'delay': delay,
-                        'consumed_indices': [start_index, i]
-                    }
-                    
-                    # Добавляем путь к скрину, если он есть в действии down
-                    if 'screen' in action:
-                        base_action['screen'] = action['screen']
-                    
-                    return base_action
-                break
+            
+            # Check if within max delay
+        if delay <= self.max_click_delay:
+            base_action = {
+                'id': self.action_id_counter,
+                'name': f'click {button}',
+                'type': 'mouse_click',
+                'button': button,
+                'x': x,
+                'y': y,
+                'start_timestamp': down_timestamp,
+                'end_timestamp': up_timestamp,
+                'delay': delay,
+                'consumed_indices': consumed_indices
+            }
+            
+            # Добавляем путь к скрину, если он есть в действии down
+            if 'screen' in action:
+                base_action['screen'] = action['screen']
+            
+            return base_action
+            
         
         return None
     
