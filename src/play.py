@@ -28,14 +28,26 @@ except ImportError:
 
 # Глобальная переменная для отслеживания прерывания
 stop_playback = False
+_cut_mode_control = None  # используется при cut_mode для передачи состояния
 
 def on_key_press(key):
-    """Обработчик нажатий клавиш для прерывания воспроизведения"""
-    global stop_playback
+    """Обработчик нажатий клавиш: ESC (прерывание) и F1 (обрезка в cut_mode)."""
+    global stop_playback, _cut_mode_control
     if key == keyboard.Key.esc:
         print("\nПолучен сигнал прерывания (ESC). Останавливаем воспроизведение...")
         stop_playback = True
-        return False  # Останавливаем слушатель
+        if _cut_mode_control is not None:
+            _cut_mode_control['cut'] = False
+        return False
+    if _cut_mode_control is not None and key == keyboard.Key.f1:
+        print("\nПолучен сигнал обрезки (F1). Останавливаем воспроизведение...")
+        stop_playback = True
+        _cut_mode_control['cut'] = True
+        return False
+
+def on_key_release(key):
+    """Пока не используется (оставлено для совместимости)."""
+    return
 
 
 def execute_mouse_click(action, dynamic=False, action_dir=None):
@@ -368,9 +380,13 @@ def create_actions_base_if_needed(action_name, actions_file=None):
         return False
 
 
-def play_actions(action_name, actions_file=None, dynamic=False):
-    """Основная функция воспроизведения действий"""
-    global stop_playback
+def play_actions(action_name, actions_file=None, dynamic=False, cut_mode=False):
+    """Основная функция воспроизведения действий.
+
+    При cut_mode=True возврат: dict {success: bool, cut: bool, last_index: int}
+    В обычном режиме возвращает bool (успех).
+    """
+    global stop_playback, _cut_mode_control
     
     # Сбрасываем флаг прерывания
     stop_playback = False
@@ -413,10 +429,15 @@ def play_actions(action_name, actions_file=None, dynamic=False):
         return False
     
     print(f"Загружено {len(actions)} действий из {actions_file}")
-    print("Начинаем воспроизведение через 3 секунды...")
-    print("Нажмите ESC для прерывания воспроизведения")
-    
-    # Запускаем слушатель клавиатуры в отдельном потоке
+    print(f"Начинаем воспроизведение через 3 секунды...")
+    if cut_mode:
+        print("Нажмите F1 для обрезки на текущем действии или ESC для отмены")
+        _cut_mode_control = {'cut': False, 'last_index': -1}
+    else:
+        print("Нажмите ESC для прерывания воспроизведения")
+        _cut_mode_control = None
+
+    # Запускаем слушатель клавиатуры (в cut_mode отслеживаем on_release Alt)
     listener = keyboard.Listener(on_press=on_key_press)
     listener.start()
     
@@ -445,6 +466,9 @@ def play_actions(action_name, actions_file=None, dynamic=False):
                 execute_wait(action)
             else:
                 print(f"Неизвестное действие: {action_name}")
+            # Обновляем индекс последнего успешно выполненного действия в cut_mode
+            if cut_mode and _cut_mode_control is not None and not stop_playback:
+                _cut_mode_control['last_index'] = i
         
         except Exception as e:
             print(f"Ошибка при выполнении действия {action_name}: {e}")
@@ -454,11 +478,23 @@ def play_actions(action_name, actions_file=None, dynamic=False):
     listener.stop()
     
     if stop_playback:
-        print("Воспроизведение было прервано")
+        if cut_mode and _cut_mode_control and _cut_mode_control.get('cut'):
+            print("Воспроизведение остановлено по сигналу обрезки (F1)")
+        else:
+            print("Воспроизведение было прервано")
     else:
         print("Воспроизведение завершено")
-    
-    return True
+
+    if cut_mode:
+        result = {
+            'success': True,
+            'cut': _cut_mode_control.get('cut', False) if _cut_mode_control else False,
+            'last_index': _cut_mode_control.get('last_index', -1) if _cut_mode_control else -1
+        }
+        _cut_mode_control = None
+        return result
+    else:
+        return True
 
 
 if __name__ == "__main__":

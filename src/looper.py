@@ -124,7 +124,7 @@ def play_action(action_name, actions_file=None, dynamic=False, delay=None, typin
         sys.exit(1)
 
 def create_scenario(action_name, output_name, delay=None, typing_params=None, 
-                   click_params=None, sleep_time=3):
+                   click_params=None, sleep_time=3, cut=False):
     """Создание сценария"""
     print(f"Создание сценария '{output_name}' для действия '{action_name}'...")
     
@@ -133,13 +133,18 @@ def create_scenario(action_name, output_name, delay=None, typing_params=None,
         creator = ScenarioCreator(action_name)
         cfg = get_config()
         typing_params_file = cfg.get_get_typing_parameters_file_path(action_name,typing_params)
-        # Создаем комплексный сценарий со всеми возможными модификациями
-        creator.create_complex_scenario(
-            output_name=output_name,
-            delay=delay,
-            typing_params_file=typing_params_file,
-            sleep_time=sleep_time
-        )
+        if cut:
+            if any([delay, typing_params, click_params]):
+                print("Предупреждение: параметры delay/typing-params/click-params игнорируются при --cut")
+            creator.create_cut_scenario(output_name)
+        else:
+            # Создаем комплексный сценарий со всеми возможными модификациями
+            creator.create_complex_scenario(
+                output_name=output_name,
+                delay=delay,
+                typing_params_file=typing_params_file,
+                sleep_time=sleep_time
+            )
         
         # Показываем информацию о созданном сценарии
         info = creator.get_scenario_info(output_name)
@@ -249,6 +254,11 @@ def main():
         metavar='SECONDS',
         help='Время ожидания между сценариями в секундах (по умолчанию: 3)'
     )
+    parser.add_argument(
+        '--cut',
+        action='store_true',
+    help='Обрезать сценарий на момент нажатия F1 во время воспроизведения'
+    )
     
     args = parser.parse_args()
     
@@ -269,7 +279,8 @@ def main():
                 args.delay, 
                 args.typing_params, 
                 args.click_params, 
-                args.sleep
+                args.sleep,
+                args.cut
             )
     except KeyboardInterrupt:
         print("\nПрерывание по запросу пользователя")

@@ -121,6 +121,12 @@ looper -p open_notepad --typing-params typing_parameters_base.csv
 # 6. Combined mode
 looper -p open_notepad --dynamic --delay 2.5 --typing-params typing_parameters_base.csv
 
+# 7. Cut action
+## Step 1: create scenario. Press F1 to stop where you need to cut:
+looper -sc open_notepad -o test_cut --cut
+## Step 2: play scenario.
+looper -p open_notepad -f test_cut 
+
 ```
 
 ## Author

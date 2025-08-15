@@ -10,6 +10,9 @@ import sys
 from pathlib import Path
 from config import get_config
 import mouse_clicker as mc
+from pynput import keyboard
+import threading
+import time
 
 
 class ScenarioCreator:
@@ -219,6 +222,49 @@ class ScenarioCreator:
             return info
         except Exception as e:
             return {'error': str(e)}
+
+    # ---------------- CUT SCENARIO FEATURE -----------------
+    def create_cut_scenario(self, output_name):
+        """Интерактивно обрезает базовые действия на момент нажатия F1 во время их проигрывания.
+
+        Пользователь запускает воспроизведение всех базовых действий и в нужный момент нажимает F1.
+        Сценарий до текущего выполненного действия (включительно) сохраняется.
+        ESC отменяет создание.
+        """
+        print("Интерактивный режим обрезки (F1 = обрезать, ESC = отмена).")
+        print("Используется play.play_actions в режиме cut_mode.")
+        try:
+            from play import play_actions
+        except ImportError:
+            print("Не удалось импортировать play_actions для cut_mode")
+            return []
+
+        # Воспроизводим base_actions напрямую через временный файл
+        temp_name = "__cut_temp_base__"
+        temp_path = self.config.get_scenario_file_path(self.action_name, temp_name)
+        try:
+            with open(temp_path, 'w', encoding='utf-8') as f:
+                json.dump(self.base_actions, f, ensure_ascii=False, indent=2)
+            result = play_actions(self.action_name, actions_file=temp_name, dynamic=False, cut_mode=True)
+        finally:
+            if temp_path.exists():
+                try:
+                    temp_path.unlink()
+                except Exception:
+                    pass
+
+        if isinstance(result, dict) and result.get('cut') and result.get('last_index', -1) >= 0:
+            cut_idx = result['last_index']
+            cut_actions = self.base_actions[:cut_idx+1]
+            self._save_scenario(cut_actions, output_name)
+            print(f"Создан обрезанный сценарий '{output_name}' с {len(cut_actions)} действиями.")
+            return cut_actions
+        elif isinstance(result, dict) and not result.get('cut'):
+            print("Обрезка не выполнена (ESC или завершение без F1). Сценарий не создан.")
+            return []
+        else:
+            print("Не удалось корректно выполнить cut_mode.")
+            return []
 
 
 def main():
